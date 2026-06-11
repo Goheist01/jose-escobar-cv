@@ -647,6 +647,15 @@
   </div>
   <div class="sprint-timeline">
     <div class="sprint-entry">
+      <div class="sprint-date">June 2026 · Sprint 03</div>
+      <div class="sprint-title">ORTHOMOSAIC + NDVI — Georeferenced Aerial Map (WebODM)</div>
+      <p class="sprint-body">Processed a real 77-image aerial dataset (Valley Parkway Connector, Ohio) through a full photogrammetry pipeline using WebODM + OpenDroneMap. Generated a georeferenced orthomosaic (EPSG:32617, 0.08 m/px, 4457×3355 px) covering 4.64 ha. Extracted GPS coordinates from EXIF metadata, plotted image capture positions and altitude profile. Computed NDVI from RGB+NIR bands via rasterio: mean NDVI 0.382, 73.4% healthy vegetation. All outputs documented via pyulog + Jupyter pipeline.</p>
+      <div class="sprint-tags">
+        <span class="sprint-tag">WebODM</span><span class="sprint-tag">OpenDroneMap</span><span class="sprint-tag">rasterio</span><span class="sprint-tag">NDVI</span><span class="sprint-tag">Orthomosaic</span><span class="sprint-tag">GeoTIFF</span><span class="sprint-tag">EPSG:32617</span><span class="sprint-tag">Photogrammetry</span><span class="sprint-tag">Jupyter</span>
+      </div>
+      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint03_orthomosaic_aukerman.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
+    </div>
+    <div class="sprint-entry">
       <div class="sprint-date">June 2026 · Sprint 02</div>
       <div class="sprint-title">BATTERY FAILSAFE — Emergency Auto Land (Simulated)</div>
       <p class="sprint-body">Executed a battery failsafe validation test in PX4 SITL / jMAVSim. Vehicle was running an autonomous mission when battery failure was injected at t=33.2s via <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">failure battery off</code> command. Flight controller triggered a 5-second loiter hold (nav_state=4) before transitioning to Auto Land (nav_state=18). Vehicle executed a controlled descent and landed at t=65.3s. Battery drained from 100% to 0%. Full nav_state timeline and battery drain extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_0_2026-6-11-14-25-29.ulg</code> and documented via pyulog + Jupyter pipeline.</p>
