@@ -648,12 +648,12 @@
   <div class="sprint-timeline">
     <div class="sprint-entry">
       <div class="sprint-date">June 2026 · Sprint 02</div>
-      <div class="sprint-title">ORBITAL_01 — Dual-Pass Survey Mission (Simulated)</div>
-      <p class="sprint-body">Executed a dual-pass survey mission in PX4 SITL / jMAVSim — two overlapping transect patterns over the same area, simulating high-density photogrammetric coverage for infrastructure inspection. Total flight time: 12.6 min. Mission items: 58. Altitude held stable throughout both passes. Telemetry extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_5_2026-6-5-18-26-47.ulg</code> and processed via pyulog + Jupyter pipeline.</p>
+      <div class="sprint-title">SIGNAL LOSS FAILSAFE — RTL Triggered Mid-Mission (Simulated)</div>
+      <p class="sprint-body">Executed a failsafe validation test in PX4 SITL / jMAVSim. Vehicle was running an autonomous mission (42 waypoints) when a simulated signal loss was introduced at t=268.5s. The flight controller correctly detected the loss, transitioned from nav_state=3 (Auto Mission) to nav_state=5 (RTL), and executed an autonomous return-to-launch without manual input. Signal restored at t=332.9s. Total flight time: 5.6 min. Failsafe trigger, RTL trajectory, and nav_state transitions extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_0_2026-6-6-22-21-20.ulg</code> and documented via pyulog + Jupyter pipeline.</p>
       <div class="sprint-tags">
-        <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Dual Survey</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">12.6 min</span>
+        <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Failsafe</span><span class="sprint-tag">Signal Loss</span><span class="sprint-tag">RTL</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">nav_state</span>
       </div>
-      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_orbital01_analysis.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
+      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_failsafe_signal_loss.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
     </div>
     <div class="sprint-entry">
       <div class="sprint-date">June 2026 · Sprint 02</div>
@@ -663,6 +663,15 @@
         <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Survey / Grid</span><span class="sprint-tag">Safe Recovery</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">80m AGL</span>
       </div>
       <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_grid01_analysis.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
+    </div>
+    <div class="sprint-entry">
+      <div class="sprint-date">June 2026 · Sprint 02</div>
+      <div class="sprint-title">ORBITAL_01 — Dual-Pass Survey Mission (Simulated)</div>
+      <p class="sprint-body">Executed a dual-pass survey mission in PX4 SITL / jMAVSim — two overlapping transect patterns over the same area, simulating high-density photogrammetric coverage for infrastructure inspection. Total flight time: 12.6 min. Mission items: 58. Altitude held stable throughout both passes. Telemetry extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_5_2026-6-5-18-26-47.ulg</code> and processed via pyulog + Jupyter pipeline.</p>
+      <div class="sprint-tags">
+        <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Dual Survey</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">12.6 min</span>
+      </div>
+      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_orbital01_analysis.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
     </div>
     <div class="sprint-entry">
       <div class="sprint-date">June 2026 · Sprint 01</div>
