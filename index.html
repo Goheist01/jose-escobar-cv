@@ -648,6 +648,24 @@
   <div class="sprint-timeline">
     <div class="sprint-entry">
       <div class="sprint-date">June 2026 · Sprint 02</div>
+      <div class="sprint-title">BATTERY FAILSAFE — Emergency Auto Land (Simulated)</div>
+      <p class="sprint-body">Executed a battery failsafe validation test in PX4 SITL / jMAVSim. Vehicle was running an autonomous mission when battery failure was injected at t=33.2s via <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">failure battery off</code> command. Flight controller triggered a 5-second loiter hold (nav_state=4) before transitioning to Auto Land (nav_state=18). Vehicle executed a controlled descent and landed at t=65.3s. Battery drained from 100% to 0%. Full nav_state timeline and battery drain extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_0_2026-6-11-14-25-29.ulg</code> and documented via pyulog + Jupyter pipeline.</p>
+      <div class="sprint-tags">
+        <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Failsafe</span><span class="sprint-tag">Battery</span><span class="sprint-tag">Auto Land</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">nav_state</span>
+      </div>
+      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_failsafe_battery.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
+    </div>
+    <div class="sprint-entry">
+      <div class="sprint-date">June 2026 · Sprint 02</div>
+      <div class="sprint-title">GPS LOSS FAILSAFE — Blind Land Triggered (Simulated)</div>
+      <p class="sprint-body">Executed a GPS loss failsafe validation test in PX4 SITL / jMAVSim. Vehicle was running an autonomous mission when GPS failure was injected at t=30.0s via <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">failure gps off</code> command. EKF immediately lost valid position estimate, switching to fake_pos dead reckoning. Flight controller transitioned from nav_state=3 (Auto Mission) to nav_state=12 (Descend / Blind Land) with zero reaction lag. Vehicle executed a controlled descent and landed at t=72.2s. Full nav_state timeline and EKF behavior extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_0_2026-6-11-13-47-44.ulg</code> and documented via pyulog + Jupyter pipeline.</p>
+      <div class="sprint-tags">
+        <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Failsafe</span><span class="sprint-tag">GPS Loss</span><span class="sprint-tag">Blind Land</span><span class="sprint-tag">EKF</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">nav_state</span>
+      </div>
+      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_failsafe_gps_loss.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
+    </div>
+    <div class="sprint-entry">
+      <div class="sprint-date">June 2026 · Sprint 02</div>
       <div class="sprint-title">SIGNAL LOSS FAILSAFE — RTL Triggered Mid-Mission (Simulated)</div>
       <p class="sprint-body">Executed a failsafe validation test in PX4 SITL / jMAVSim. Vehicle was running an autonomous mission (42 waypoints) when a simulated signal loss was introduced at t=268.5s. The flight controller correctly detected the loss, transitioned from nav_state=3 (Auto Mission) to nav_state=5 (RTL), and executed an autonomous return-to-launch without manual input. Signal restored at t=332.9s. Total flight time: 5.6 min. Failsafe trigger, RTL trajectory, and nav_state transitions extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_0_2026-6-6-22-21-20.ulg</code> and documented via pyulog + Jupyter pipeline.</p>
       <div class="sprint-tags">
