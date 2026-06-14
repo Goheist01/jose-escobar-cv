@@ -1,935 +1,2376 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jose Escobar — UAV Operations & Data Systems</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0a0c0f;
-    --bg2: #0f1318;
-    --bg3: #141920;
-    --surface: #1a2030;
-    --border: rgba(0,200,150,0.12);
-    --border2: rgba(0,200,150,0.28);
-    --accent: #00e5a0;
-    --accent2: #00b8ff;
-    --accent3: #ff6b35;
-    --text: #e8edf5;
-    --muted: #6b7a8d;
-    --muted2: #8a9ab0;
-    --mono: 'Space Mono', monospace;
-    --sans: 'Barlow', sans-serif;
-    --cond: 'Barlow Condensed', sans-serif;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 16px;
-    line-height: 1.6;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px);
-    pointer-events: none;
-    z-index: 900;
-  }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jose Escobar — UAV Operations & Data Systems</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0c0f;
+        --bg2: #0f1318;
+        --bg3: #141920;
+        --surface: #1a2030;
+        --border: rgba(0, 200, 150, 0.12);
+        --border2: rgba(0, 200, 150, 0.28);
+        --accent: #00e5a0;
+        --accent2: #00b8ff;
+        --accent3: #ff6b35;
+        --text: #e8edf5;
+        --muted: #6b7a8d;
+        --muted2: #8a9ab0;
+        --mono: "Space Mono", monospace;
+        --sans: "Barlow", sans-serif;
+        --cond: "Barlow Condensed", sans-serif;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 16px;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.025) 2px,
+          rgba(0, 0, 0, 0.025) 4px
+        );
+        pointer-events: none;
+        z-index: 900;
+      }
 
-  /* ── BOOT SCREEN ─────────────────────────────────── */
-  #boot {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 3rem 4rem;
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--accent);
-    overflow: hidden;
-  }
-  #boot::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,140,0.03) 3px, rgba(0,255,140,0.03) 4px);
-    pointer-events: none;
-  }
-  .boot-logo {
-    font-size: clamp(2rem, 6vw, 4rem);
-    font-family: var(--cond);
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 0.5rem;
-    text-shadow: 0 0 30px rgba(0,229,160,0.4);
-  }
-  .boot-sub {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 2.5rem;
-  }
-  .boot-lines {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    max-width: 640px;
-  }
-  .boot-line {
-    opacity: 0;
-    transition: opacity 0.1s;
-    line-height: 1.8;
-    letter-spacing: 0.04em;
-  }
-  .boot-line.ok::after {
-    content: ' [OK]';
-    color: var(--accent);
-  }
-  .boot-line.warn::after {
-    content: ' [PENDING]';
-    color: var(--accent3);
-  }
-  .boot-bar-wrap {
-    margin-top: 2rem;
-    max-width: 400px;
-  }
-  .boot-bar-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .boot-bar-track {
-    height: 2px;
-    background: rgba(0,229,160,0.1);
-    position: relative;
-    overflow: hidden;
-  }
-  .boot-bar-fill {
-    height: 100%;
-    width: 0%;
-    background: var(--accent);
-    transition: width 0.05s linear;
-    box-shadow: 0 0 8px rgba(0,229,160,0.6);
-  }
-  .boot-pct {
-    margin-top: 6px;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-  }
-  #boot.fade-out {
-    animation: bootFade 0.6s ease-out forwards;
-  }
-  @keyframes bootFade {
-    0%   { opacity: 1; }
-    100% { opacity: 0; pointer-events: none; }
-  }
+      /* ── BOOT SCREEN ─────────────────────────────────── */
+      #boot {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 3rem 4rem;
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--accent);
+        overflow: hidden;
+      }
+      #boot::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 3px,
+          rgba(0, 255, 140, 0.03) 3px,
+          rgba(0, 255, 140, 0.03) 4px
+        );
+        pointer-events: none;
+      }
+      .boot-logo {
+        font-size: clamp(2rem, 6vw, 4rem);
+        font-family: var(--cond);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 30px rgba(0, 229, 160, 0.4);
+      }
+      .boot-sub {
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 2.5rem;
+      }
+      .boot-lines {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-width: 640px;
+      }
+      .boot-line {
+        opacity: 0;
+        transition: opacity 0.1s;
+        line-height: 1.8;
+        letter-spacing: 0.04em;
+      }
+      .boot-line.ok::after {
+        content: " [OK]";
+        color: var(--accent);
+      }
+      .boot-line.warn::after {
+        content: " [PENDING]";
+        color: var(--accent3);
+      }
+      .boot-bar-wrap {
+        margin-top: 2rem;
+        max-width: 400px;
+      }
+      .boot-bar-label {
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .boot-bar-track {
+        height: 2px;
+        background: rgba(0, 229, 160, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+      .boot-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: var(--accent);
+        transition: width 0.05s linear;
+        box-shadow: 0 0 8px rgba(0, 229, 160, 0.6);
+      }
+      .boot-pct {
+        margin-top: 6px;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+      }
+      #boot.fade-out {
+        animation: bootFade 0.6s ease-out forwards;
+      }
+      @keyframes bootFade {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          pointer-events: none;
+        }
+      }
 
-  /* ── MAIN CONTENT (hidden until boot done) ────── */
-  #main { opacity: 0; transition: opacity 0.5s ease; }
-  #main.visible { opacity: 1; }
+      /* ── MAIN CONTENT (hidden until boot done) ────── */
+      #main {
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+      #main.visible {
+        opacity: 1;
+      }
 
-  /* ── NAV ─────────────────────────────────────────── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    background: rgba(10,12,15,0.93);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .nav-logo { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; }
-  .nav-logo span { color: var(--muted); }
-  .nav-links { display: flex; gap: 2rem; list-style: none; }
-  .nav-links a { font-family: var(--mono); font-size: 11px; color: var(--muted2); text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; }
-  .nav-links a:hover { color: var(--accent); }
+      /* ── NAV ─────────────────────────────────────────── */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: rgba(10, 12, 15, 0.93);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .nav-logo {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+      .nav-logo span {
+        color: var(--muted);
+      }
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+      }
+      .nav-links a {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted2);
+        text-decoration: none;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--accent);
+      }
 
-  /* ── HERO ───────────────────────────────────────── */
-  .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 80px 4rem 4rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero-grid {
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background-image:
-      linear-gradient(rgba(0,229,160,0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,160,0.035) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-  }
-  .hero-grid::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 15% 55%, rgba(0,229,160,0.055) 0%, transparent 55%);
-  }
-  .hero-tag {
-    font-family: var(--mono); font-size: 11px; color: var(--accent);
-    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1.5rem;
-    display: flex; align-items: center; gap: 0.75rem;
-  }
-  .hero-tag::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--accent); }
-  .hero h1 {
-    font-family: var(--cond); font-size: clamp(3rem, 8vw, 7rem);
-    font-weight: 700; line-height: 0.92; letter-spacing: -0.02em;
-    margin-bottom: 1.25rem; text-transform: uppercase;
-  }
-  .hero h1 em { font-style: normal; color: var(--accent); display: block; }
-  .hero-pitch {
-    font-size: clamp(1rem, 1.8vw, 1.25rem);
-    color: var(--text);
-    max-width: 680px;
-    line-height: 1.65;
-    margin-bottom: 1.5rem;
-    font-weight: 400;
-  }
-  .hero-pitch strong { color: var(--accent); font-weight: 600; }
-  .hero-sub {
-    font-family: var(--mono); font-size: 11px; color: var(--muted);
-    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2.5rem;
-  }
-  .hero-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 3rem; }
-  .chip {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-    padding: 5px 12px; border: 1px solid var(--border2); color: var(--accent); text-transform: uppercase;
-  }
-  .chip.blue { border-color: rgba(0,184,255,0.3); color: var(--accent2); }
-  .chip.dim { border-color: rgba(255,255,255,0.08); color: var(--muted2); }
-  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-  .btn { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 12px 24px; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border: none; background: none; }
-  .btn-primary { background: var(--accent); color: #0a0c0f; font-weight: 700; }
-  .btn-primary:hover { background: #00ffb3; }
-  .btn-outline { border: 1px solid var(--border2); color: var(--accent); }
-  .btn-outline:hover { background: rgba(0,229,160,0.07); }
-  .hero-telemetry {
-    position: absolute; right: 4rem; top: 50%; transform: translateY(-50%);
-    display: flex; flex-direction: column; gap: 1.75rem;
-  }
-  .telem-block { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: right; }
-  .telem-block .val { display: block; font-size: 20px; color: var(--accent); font-weight: 700; letter-spacing: 0.05em; line-height: 1.2; }
-  .telem-block .lbl { text-transform: uppercase; letter-spacing: 0.15em; font-size: 9px; }
+      /* ── HERO ───────────────────────────────────────── */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 80px 4rem 4rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-grid {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image:
+          linear-gradient(rgba(0, 229, 160, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 229, 160, 0.035) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+      }
+      .hero-grid::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse at 15% 55%,
+          rgba(0, 229, 160, 0.055) 0%,
+          transparent 55%
+        );
+      }
+      .hero-tag {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .hero-tag::before {
+        content: "";
+        display: inline-block;
+        width: 24px;
+        height: 1px;
+        background: var(--accent);
+      }
+      .hero h1 {
+        font-family: var(--cond);
+        font-size: clamp(3rem, 8vw, 7rem);
+        font-weight: 700;
+        line-height: 0.92;
+        letter-spacing: -0.02em;
+        margin-bottom: 1.25rem;
+        text-transform: uppercase;
+      }
+      .hero h1 em {
+        font-style: normal;
+        color: var(--accent);
+        display: block;
+      }
+      .hero-pitch {
+        font-size: clamp(1rem, 1.8vw, 1.25rem);
+        color: var(--text);
+        max-width: 680px;
+        line-height: 1.65;
+        margin-bottom: 1.5rem;
+        font-weight: 400;
+      }
+      .hero-pitch strong {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .hero-sub {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 2.5rem;
+      }
+      /* ── CHIP CAROUSEL ──────────────────────────────── */
+      .chips-carousel {
+        overflow: hidden;
+        width: 100%;
+        margin-bottom: 3rem;
+        -webkit-mask-image: linear-gradient(
+          90deg,
+          transparent,
+          black 4%,
+          black 96%,
+          transparent
+        );
+        mask-image: linear-gradient(
+          90deg,
+          transparent,
+          black 4%,
+          black 96%,
+          transparent
+        );
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 0;
+      }
+      .chips-track {
+        display: flex;
+        gap: 0.6rem;
+        width: max-content;
+        animation: chipScroll 55s linear infinite;
+      }
+      .chips-track:hover {
+        animation-play-state: paused;
+      }
+      @keyframes chipScroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+      .chip {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        padding: 5px 14px;
+        border: 1px solid var(--border2);
+        color: var(--accent);
+        text-transform: uppercase;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .chip.blue {
+        border-color: rgba(0, 184, 255, 0.3);
+        color: var(--accent2);
+      }
+      .chip.orange {
+        border-color: rgba(255, 107, 53, 0.25);
+        color: var(--accent3);
+      }
+      .chip.dim {
+        border-color: rgba(255, 255, 255, 0.08);
+        color: var(--muted2);
+      }
 
-  /* ── SECTIONS ───────────────────────────────────── */
-  section { padding: 5rem 4rem; position: relative; }
-  .section-header { display: flex; align-items: baseline; gap: 1.5rem; margin-bottom: 3rem; }
-  .section-num { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.15em; }
-  .section-title { font-family: var(--cond); font-size: 2.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1; }
-  .section-line { flex: 1; height: 1px; background: var(--border); max-width: 100px; }
+      /* ── SPRINT TELEM (right-side counter) ───────────── */
+      .sprint-telem {
+        position: absolute;
+        right: 4rem;
+        top: 5rem;
+      }
+      .hero-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .btn {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 12px 24px;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        border: none;
+        background: none;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #0a0c0f;
+        font-weight: 700;
+      }
+      .btn-primary:hover {
+        background: #00ffb3;
+      }
+      .btn-outline {
+        border: 1px solid var(--border2);
+        color: var(--accent);
+      }
+      .btn-outline:hover {
+        background: rgba(0, 229, 160, 0.07);
+      }
+      .hero-telemetry {
+        position: absolute;
+        right: 4rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
+      }
+      .telem-block {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+        text-align: right;
+      }
+      .telem-block .val {
+        display: block;
+        font-size: 20px;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        line-height: 1.2;
+      }
+      .telem-block .lbl {
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-size: 9px;
+      }
 
-  /* ── VALUE PROP BLOCK ───────────────────────────── */
-  .value-section { background: var(--bg3); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .value-pipeline {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin-bottom: 3rem;
-  }
-  .pipeline-step {
-    background: var(--bg2);
-    padding: 2rem 1.5rem;
-    position: relative;
-  }
-  .pipeline-step::after {
-    content: '→';
-    position: absolute;
-    right: -14px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-family: var(--mono);
-    font-size: 14px;
-    color: var(--accent);
-    z-index: 2;
-  }
-  .pipeline-step:last-child::after { display: none; }
-  .pipe-num { font-family: var(--mono); font-size: 9px; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.5rem; }
-  .pipe-title { font-family: var(--cond); font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.4rem; }
-  .pipe-desc { font-size: 12px; color: var(--muted2); line-height: 1.55; }
-  .value-note {
-    font-family: var(--mono); font-size: 12px; color: var(--muted);
-    border-left: 2px solid var(--accent); padding-left: 1.25rem;
-    letter-spacing: 0.04em; line-height: 1.7; max-width: 700px;
-  }
-  .value-note strong { color: var(--accent); font-weight: 700; }
+      /* ── SECTIONS ───────────────────────────────────── */
+      section {
+        padding: 5rem 4rem;
+        position: relative;
+      }
+      .section-header {
+        display: flex;
+        align-items: baseline;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+      }
+      .section-num {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.15em;
+      }
+      .section-title {
+        font-family: var(--cond);
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        line-height: 1;
+      }
+      .section-line {
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+        max-width: 100px;
+      }
 
-  /* ── CAPABILITIES ───────────────────────────────── */
-  .cap-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1px; background: var(--border); border: 1px solid var(--border);
-  }
-  .cap-card { background: var(--bg2); padding: 2rem; position: relative; overflow: hidden; transition: background 0.2s; }
-  .cap-card:hover { background: var(--bg3); }
-  .cap-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); opacity: 0; transition: opacity 0.2s; }
-  .cap-card.blue-acc::before { background: var(--accent2); }
-  .cap-card:hover::before { opacity: 1; }
-  .cap-label { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
-  .cap-label::before { content: '▸'; font-size: 8px; }
-  .cap-label.blue { color: var(--accent2); }
-  .cap-card h3 { font-family: var(--cond); font-size: 1.15rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
-  .cap-card p { font-size: 13px; color: var(--muted2); line-height: 1.6; }
-  .cap-status {
-    display: inline-block; margin-top: 1rem;
-    font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em;
-    padding: 3px 8px; text-transform: uppercase;
-  }
-  .cap-status.active { background: rgba(0,229,160,0.08); color: var(--accent); }
-  .cap-status.training { background: rgba(0,184,255,0.08); color: var(--accent2); }
-  .cap-status.roadmap { background: rgba(255,107,53,0.08); color: var(--accent3); }
+      /* ── VALUE PROP BLOCK ───────────────────────────── */
+      .value-section {
+        background: var(--bg3);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .value-pipeline {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        margin-bottom: 3rem;
+      }
+      .pipeline-step {
+        background: var(--bg2);
+        padding: 2rem 1.5rem;
+        position: relative;
+      }
+      .pipeline-step::after {
+        content: "→";
+        position: absolute;
+        right: -14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: var(--mono);
+        font-size: 14px;
+        color: var(--accent);
+        z-index: 2;
+      }
+      .pipeline-step:last-child::after {
+        display: none;
+      }
+      .pipe-num {
+        font-family: var(--mono);
+        font-size: 9px;
+        color: var(--accent);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+      .pipe-title {
+        font-family: var(--cond);
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.4rem;
+      }
+      .pipe-desc {
+        font-size: 12px;
+        color: var(--muted2);
+        line-height: 1.55;
+      }
+      .value-note {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        border-left: 2px solid var(--accent);
+        padding-left: 1.25rem;
+        letter-spacing: 0.04em;
+        line-height: 1.7;
+        max-width: 700px;
+      }
+      .value-note strong {
+        color: var(--accent);
+        font-weight: 700;
+      }
 
-  /* ── STACK ──────────────────────────────────────── */
-  .stack-section { background: var(--bg2); }
-  .stack-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
-  .stack-group-title { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
-  .stack-items { display: flex; flex-direction: column; gap: 0; }
-  .stack-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
-  .stack-item:last-child { border-bottom: none; }
-  .stack-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-  .stack-dot.blue { background: var(--accent2); }
-  .stack-dot.orange { background: var(--accent3); }
-  .stack-name { font-family: var(--mono); font-size: 12px; color: var(--text); flex: 1; }
-  .stack-note { font-size: 11px; color: var(--muted); }
+      /* ── CAPABILITIES ───────────────────────────────── */
+      .cap-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+      }
+      .cap-card {
+        background: var(--bg2);
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.2s;
+      }
+      .cap-card:hover {
+        background: var(--bg3);
+      }
+      .cap-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: var(--accent);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .cap-card.blue-acc::before {
+        background: var(--accent2);
+      }
+      .cap-card:hover::before {
+        opacity: 1;
+      }
+      .cap-label {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--accent);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .cap-label::before {
+        content: "▸";
+        font-size: 8px;
+      }
+      .cap-label.blue {
+        color: var(--accent2);
+      }
+      .cap-card h3 {
+        font-family: var(--cond);
+        font-size: 1.15rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.5rem;
+      }
+      .cap-card p {
+        font-size: 13px;
+        color: var(--muted2);
+        line-height: 1.6;
+      }
+      .cap-status {
+        display: inline-block;
+        margin-top: 1rem;
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        padding: 3px 8px;
+        text-transform: uppercase;
+      }
+      .cap-status.active {
+        background: rgba(0, 229, 160, 0.08);
+        color: var(--accent);
+      }
+      .cap-status.training {
+        background: rgba(0, 184, 255, 0.08);
+        color: var(--accent2);
+      }
+      .cap-status.roadmap {
+        background: rgba(255, 107, 53, 0.08);
+        color: var(--accent3);
+      }
 
-  /* ── PROJECTS ───────────────────────────────────── */
-  .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
-  .project-card { background: var(--bg2); border: 1px solid var(--border); padding: 2rem; transition: border-color 0.2s; }
-  .project-card:hover { border-color: var(--border2); }
-  .project-card.featured { border-color: rgba(0,229,160,0.28); background: rgba(0,229,160,0.015); }
-  .proj-status { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; padding: 3px 10px; margin-bottom: 1.25rem; display: inline-block; text-transform: uppercase; }
-  .proj-status.live { background: rgba(0,229,160,0.1); color: var(--accent); }
-  .proj-status.wip { background: rgba(0,184,255,0.1); color: var(--accent2); }
-  .proj-status.sim { background: rgba(255,107,53,0.1); color: var(--accent3); }
-  .project-card h3 { font-family: var(--cond); font-size: 1.4rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.5rem; }
-  .proj-desc { font-size: 13px; color: var(--muted2); margin-bottom: 1.25rem; line-height: 1.65; }
-  .proj-stack { display: flex; flex-wrap: wrap; gap: 6px; }
-  .proj-tag { font-family: var(--mono); font-size: 9px; padding: 3px 8px; border: 1px solid var(--border); color: var(--muted2); text-transform: uppercase; letter-spacing: 0.08em; }
+      /* ── STACK ──────────────────────────────────────── */
+      .stack-section {
+        background: var(--bg2);
+      }
+      .stack-cols {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+      }
+      .stack-group-title {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .stack-items {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .stack-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .stack-item:last-child {
+        border-bottom: none;
+      }
+      .stack-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--accent);
+        flex-shrink: 0;
+      }
+      .stack-dot.blue {
+        background: var(--accent2);
+      }
+      .stack-dot.orange {
+        background: var(--accent3);
+      }
+      .stack-name {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text);
+        flex: 1;
+      }
+      .stack-note {
+        font-size: 11px;
+        color: var(--muted);
+      }
 
-  /* ── SPRINT LOG ─────────────────────────────────── */
-  .sprints-section { background: var(--bg2); }
-  .sprint-timeline { position: relative; padding-left: 2rem; }
-  .sprint-timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--border); }
-  .sprint-entry { position: relative; margin-bottom: 3rem; padding-left: 1.5rem; }
-  .sprint-entry::before { content: ''; position: absolute; left: -2.35rem; top: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg2); box-shadow: 0 0 0 1px var(--accent); }
-  .sprint-entry.wip::before { background: var(--accent2); box-shadow: 0 0 0 1px var(--accent2); }
-  .sprint-date { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
-  .sprint-title { font-family: var(--cond); font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-  .sprint-body { font-size: 13px; color: var(--muted2); line-height: 1.65; }
-  .sprint-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.75rem; }
-  .sprint-tag { font-family: var(--mono); font-size: 9px; padding: 2px 8px; border: 1px solid var(--border); color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-  .sprint-placeholder { border: 1px dashed rgba(0,229,160,0.2); padding: 2rem; text-align: center; font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 1rem; }
+      /* ── PROJECTS ───────────────────────────────────── */
+      .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+      }
+      .project-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        padding: 2rem;
+        transition: border-color 0.2s;
+      }
+      .project-card:hover {
+        border-color: var(--border2);
+      }
+      .project-card.featured {
+        border-color: rgba(0, 229, 160, 0.28);
+        background: rgba(0, 229, 160, 0.015);
+      }
+      .proj-status {
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 0.15em;
+        padding: 3px 10px;
+        margin-bottom: 1.25rem;
+        display: inline-block;
+        text-transform: uppercase;
+      }
+      .proj-status.live {
+        background: rgba(0, 229, 160, 0.1);
+        color: var(--accent);
+      }
+      .proj-status.wip {
+        background: rgba(0, 184, 255, 0.1);
+        color: var(--accent2);
+      }
+      .proj-status.sim {
+        background: rgba(255, 107, 53, 0.1);
+        color: var(--accent3);
+      }
+      .project-card h3 {
+        font-family: var(--cond);
+        font-size: 1.4rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.5rem;
+      }
+      .proj-desc {
+        font-size: 13px;
+        color: var(--muted2);
+        margin-bottom: 1.25rem;
+        line-height: 1.65;
+      }
+      .proj-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .proj-tag {
+        font-family: var(--mono);
+        font-size: 9px;
+        padding: 3px 8px;
+        border: 1px solid var(--border);
+        color: var(--muted2);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
 
-  /* ── EXPERIENCE ─────────────────────────────────── */
-  .exp-list { display: flex; flex-direction: column; }
-  .exp-item { border-top: 1px solid var(--border); padding: 2rem 0; display: grid; grid-template-columns: 200px 1fr; gap: 2rem; align-items: start; }
-  .exp-item:last-child { border-bottom: 1px solid var(--border); }
-  .exp-period { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.25rem; }
-  .exp-company { font-family: var(--cond); font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); }
-  .exp-loc { font-size: 12px; color: var(--muted); margin-top: 0.25rem; }
-  .exp-role { font-family: var(--cond); font-size: 1.2rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
-  .exp-bullets { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
-  .exp-bullets li { font-size: 13px; color: var(--muted2); padding-left: 1rem; position: relative; line-height: 1.55; }
-  .exp-bullets li::before { content: '—'; position: absolute; left: 0; color: rgba(0,200,150,0.3); font-family: var(--mono); }
+      /* ── SPRINT LOG ─────────────────────────────────── */
+      .sprints-section {
+        background: var(--bg2);
+      }
+      .sprint-timeline {
+        position: relative;
+        padding-left: 2rem;
+      }
+      .sprint-timeline::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--border);
+      }
+      .sprint-entry {
+        position: relative;
+        margin-bottom: 3rem;
+        padding-left: 1.5rem;
+      }
+      .sprint-entry::before {
+        content: "";
+        position: absolute;
+        left: -2.35rem;
+        top: 6px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 2px solid var(--bg2);
+        box-shadow: 0 0 0 1px var(--accent);
+      }
+      .sprint-entry.wip::before {
+        background: var(--accent2);
+        box-shadow: 0 0 0 1px var(--accent2);
+      }
+      .sprint-date {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+      .sprint-title {
+        font-family: var(--cond);
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+      }
+      .sprint-body {
+        font-size: 13px;
+        color: var(--muted2);
+        line-height: 1.65;
+      }
+      .sprint-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 0.75rem;
+      }
+      .sprint-tag {
+        font-family: var(--mono);
+        font-size: 9px;
+        padding: 2px 8px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .sprint-placeholder {
+        border: 1px dashed rgba(0, 229, 160, 0.2);
+        padding: 2rem;
+        text-align: center;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: 1rem;
+      }
 
-  /* ── EDUCATION ──────────────────────────────────── */
-  .edu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-  .edu-item { background: var(--bg2); padding: 2rem; }
-  .edu-degree { font-family: var(--cond); font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.25rem; line-height: 1.2; }
-  .edu-inst { font-size: 12px; color: var(--accent); font-family: var(--mono); margin-bottom: 0.4rem; }
-  .edu-year { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-  .edu-note { font-size: 12px; color: var(--muted2); margin-top: 0.75rem; line-height: 1.55; }
+      /* ── EXPERIENCE ─────────────────────────────────── */
+      .exp-list {
+        display: flex;
+        flex-direction: column;
+      }
+      .exp-item {
+        border-top: 1px solid var(--border);
+        padding: 2rem 0;
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 2rem;
+        align-items: start;
+      }
+      .exp-item:last-child {
+        border-bottom: 1px solid var(--border);
+      }
+      .exp-period {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+      }
+      .exp-company {
+        font-family: var(--cond);
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--accent);
+      }
+      .exp-loc {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 0.25rem;
+      }
+      .exp-role {
+        font-family: var(--cond);
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+      }
+      .exp-bullets {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .exp-bullets li {
+        font-size: 13px;
+        color: var(--muted2);
+        padding-left: 1rem;
+        position: relative;
+        line-height: 1.55;
+      }
+      .exp-bullets li::before {
+        content: "—";
+        position: absolute;
+        left: 0;
+        color: rgba(0, 200, 150, 0.3);
+        font-family: var(--mono);
+      }
 
-  /* ── VISION ─────────────────────────────────────── */
-  .vision-section { background: var(--bg3); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .vision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-  .vision-quote { font-family: var(--cond); font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 600; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.02em; }
-  .vision-quote em { font-style: normal; color: var(--accent); }
-  .vision-points { list-style: none; display: flex; flex-direction: column; gap: 1.25rem; }
-  .vision-points li { font-size: 13px; color: var(--muted2); padding-left: 1.5rem; position: relative; line-height: 1.65; }
-  .vision-points li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); font-family: var(--mono); font-size: 10px; top: 3px; }
+      /* ── EDUCATION ──────────────────────────────────── */
+      .edu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+      }
+      .edu-item {
+        background: var(--bg2);
+        padding: 2rem;
+      }
+      .edu-degree {
+        font-family: var(--cond);
+        font-size: 1.05rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.25rem;
+        line-height: 1.2;
+      }
+      .edu-inst {
+        font-size: 12px;
+        color: var(--accent);
+        font-family: var(--mono);
+        margin-bottom: 0.4rem;
+      }
+      .edu-year {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .edu-note {
+        font-size: 12px;
+        color: var(--muted2);
+        margin-top: 0.75rem;
+        line-height: 1.55;
+      }
 
-  /* ── SPANISH ─────────────────────────────────────── */
-  .spanish-section { background: var(--bg2); border-top: 1px solid var(--border); }
-  .es-intro { font-size: 15px; color: var(--muted2); line-height: 1.75; margin-bottom: 2rem; max-width: 760px; }
-  .es-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 2rem; }
-  .es-item { background: var(--bg2); padding: 1.5rem; }
-  .es-item-title { font-family: var(--cond); font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 0.5rem; }
-  .es-item-text { font-size: 12px; color: var(--muted2); line-height: 1.6; }
+      /* ── VISION ─────────────────────────────────────── */
+      .vision-section {
+        background: var(--bg3);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .vision-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+      }
+      .vision-quote {
+        font-family: var(--cond);
+        font-size: clamp(1.4rem, 3vw, 2.2rem);
+        font-weight: 600;
+        line-height: 1.2;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+      }
+      .vision-quote em {
+        font-style: normal;
+        color: var(--accent);
+      }
+      .vision-points {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+      .vision-points li {
+        font-size: 13px;
+        color: var(--muted2);
+        padding-left: 1.5rem;
+        position: relative;
+        line-height: 1.65;
+      }
+      .vision-points li::before {
+        content: "▸";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+        font-family: var(--mono);
+        font-size: 10px;
+        top: 3px;
+      }
 
-  /* ── CONTACT ─────────────────────────────────────── */
-  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
-  .contact-text { font-family: var(--cond); font-size: 1.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.2; margin-bottom: 2rem; }
-  .contact-links { display: flex; flex-direction: column; gap: 1rem; }
-  .contact-link { display: flex; align-items: center; gap: 1rem; font-family: var(--mono); font-size: 12px; color: var(--muted2); text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
-  .contact-link:hover { color: var(--accent); }
-  .clink-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); min-width: 60px; }
-  .avail-block { border: 1px solid var(--border2); padding: 1.25rem; }
-  .avail-label { font-family: var(--mono); font-size: 9px; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
-  .avail-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
-  .avail-text { font-size: 13px; color: var(--muted2); line-height: 1.5; }
-  .langs { display: flex; gap: 1.5rem; margin-bottom: 2rem; }
-  .lang-block { text-align: center; }
-  .lang-name { font-family: var(--cond); font-size: 1.5rem; font-weight: 700; text-transform: uppercase; }
-  .lang-level { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 2px; }
+      /* ── CONTACT ─────────────────────────────────────── */
+      .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+      }
+      .contact-text {
+        font-family: var(--cond);
+        font-size: 1.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        line-height: 1.2;
+        margin-bottom: 2rem;
+      }
+      .contact-links {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .contact-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted2);
+        text-decoration: none;
+        letter-spacing: 0.05em;
+        transition: color 0.2s;
+      }
+      .contact-link:hover {
+        color: var(--accent);
+      }
+      .clink-label {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--muted);
+        min-width: 60px;
+      }
+      .avail-block {
+        border: 1px solid var(--border2);
+        padding: 1.25rem;
+      }
+      .avail-label {
+        font-family: var(--mono);
+        font-size: 9px;
+        color: var(--accent);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .avail-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.4;
+          transform: scale(0.8);
+        }
+      }
+      .avail-text {
+        font-size: 13px;
+        color: var(--muted2);
+        line-height: 1.5;
+      }
+      .langs {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      .lang-block {
+        text-align: center;
+      }
+      .lang-name {
+        font-family: var(--cond);
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .lang-level {
+        font-family: var(--mono);
+        font-size: 9px;
+        color: var(--muted);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-top: 2px;
+      }
 
-  /* ── FOOTER ─────────────────────────────────────── */
-  footer { padding: 2rem 4rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .footer-copy { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
-  .footer-sig { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; }
+      /* ── FOOTER ─────────────────────────────────────── */
+      footer {
+        padding: 2rem 4rem;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .footer-copy {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+      }
+      .footer-sig {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--accent);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
 
-  /* ── RESPONSIVE ─────────────────────────────────── */
-  @media (max-width: 900px) {
-    section { padding: 3rem 1.5rem; }
-    nav, footer { padding: 0 1.5rem; }
-    .hero { padding: 80px 1.5rem 3rem; }
-    .hero-telemetry { display: none; }
-    .value-pipeline { grid-template-columns: 1fr 1fr; }
-    .stack-cols { grid-template-columns: 1fr; }
-    .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
-    .vision-grid, .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .nav-links { display: none; }
-    footer { flex-direction: column; gap: 0.5rem; text-align: center; }
-    .pipeline-step::after { display: none; }
-  }
-</style>
-</head>
-<body>
-
-<!-- BOOT SCREEN -->
-<div id="boot">
-  <div class="boot-logo">JE // SYS</div>
-  <div class="boot-sub">Field Intelligence Platform · v2.0 · Initializing</div>
-  <div class="boot-lines" id="bootLines"></div>
-  <div class="boot-bar-wrap">
-    <div class="boot-bar-label">Loading profile</div>
-    <div class="boot-bar-track"><div class="boot-bar-fill" id="bootBar"></div></div>
-    <div class="boot-pct" id="bootPct">0%</div>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div id="main">
-
-<nav>
-  <div class="nav-logo">JE<span> // </span>UAV · Data · Ops</div>
-  <ul class="nav-links">
-    <li><a href="#value">Offer</a></li>
-    <li><a href="#capabilities">Skills</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#sprints">Sprint Log</a></li>
-    <li><a href="#experience">Experience</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-tag">Industrial Engineer · UAV Systems · Data Automation</div>
-  <h1>Jose<br><em>Escobar</em></h1>
-  <p class="hero-pitch">
-    I design missions, process the data, and deliver structured operational reports — <strong>end-to-end, in-house.</strong><br>
-    Industrial Engineering foundation. Full-stack development. UAV telemetry and simulation in active training.
-  </p>
-  <div class="hero-sub">México · Australia · Open to international work</div>
-  <div class="hero-chips">
-    <span class="chip">Python</span>
-    <span class="chip">SQL</span>
-    <span class="chip">Node.js</span>
-    <span class="chip">MongoDB</span>
-    <span class="chip blue">QGroundControl</span>
-    <span class="chip blue">MAVLink</span>
-    <span class="chip blue">SITL / jMAVSim</span>
-    <span class="chip blue">Mission Planning</span>
-    <span class="chip dim">Thermography · Planned</span>
-    <span class="chip dim">Photogrammetry · Planned</span>
-  </div>
-  <div class="hero-actions">
-    <a href="#contact" class="btn btn-primary">Get in touch ↓</a>
-    <a href="mailto:jaemaciel.55@gmail.com" class="btn btn-outline">jaemaciel.55@gmail.com</a>
-  </div>
-  <div class="hero-telemetry">
-    <div class="telem-block"><span class="val">3+</span><span class="lbl">Systems Shipped</span></div>
-    <div class="telem-block"><span class="val">2</span><span class="lbl">Degrees</span></div>
-    <div class="telem-block"><span class="val">EN/ES</span><span class="lbl">Languages</span></div>
-    <div class="telem-block"><span class="val">INT'L</span><span class="lbl">Available</span></div>
-  </div>
-</section>
-
-<!-- VALUE PIPELINE -->
-<section class="value-section" id="value">
-  <div class="section-header">
-    <span class="section-num">01</span>
-    <h2 class="section-title">What I Deliver</h2>
-    <div class="section-line"></div>
-  </div>
-  <div class="value-pipeline">
-    <div class="pipeline-step">
-      <div class="pipe-num">Step 01</div>
-      <div class="pipe-title">Mission Design</div>
-      <p class="pipe-desc">Flight planning, waypoints, airspace assessment, safety protocols, and pre-flight validation.</p>
-    </div>
-    <div class="pipeline-step">
-      <div class="pipe-num">Step 02</div>
-      <div class="pipe-title">Data Capture</div>
-      <p class="pipe-desc">Autonomous flight execution, sensor data collection — visual, thermal, multispectral.</p>
-    </div>
-    <div class="pipeline-step">
-      <div class="pipe-num">Step 03</div>
-      <div class="pipe-title">Processing & Analysis</div>
-      <p class="pipe-desc">Python pipelines for telemetry parsing, imagery analysis, anomaly detection, and KPI extraction.</p>
-    </div>
-    <div class="pipeline-step">
-      <div class="pipe-num">Step 04</div>
-      <div class="pipe-title">Operational Report</div>
-      <p class="pipe-desc">Structured deliverables — dashboards, automated reports, and decision-ready data for the client.</p>
-    </div>
-  </div>
-  <p class="value-note">
-    <strong>The differentiator:</strong> Most drone operators deliver raw footage. Most data engineers don't fly. I'm building the capacity to own the full pipeline — from airframe to actionable insight — which means fewer handoffs, lower cost, and faster turnaround for the client.
-  </p>
-</section>
-
-<!-- CAPABILITIES -->
-<section id="capabilities">
-  <div class="section-header">
-    <span class="section-num">02</span>
-    <h2 class="section-title">Capabilities</h2>
-    <div class="section-line"></div>
-  </div>
-  <div class="cap-grid">
-    <div class="cap-card">
-      <div class="cap-label">Active</div>
-      <h3>Automated Data Pipelines</h3>
-      <p>End-to-end ETL systems in Python — from raw input to structured output. Telemetry parsing, scoring models, anomaly detection, and operational reporting at scale. Demonstrable in production.</p>
-      <span class="cap-status active">Production Ready</span>
-    </div>
-    <div class="cap-card">
-      <div class="cap-label">Active</div>
-      <h3>Operations Intelligence</h3>
-      <p>Industrial Engineering background applied to field operations. Process design, logistics coordination, KPI frameworks, and continuous improvement — with the systems thinking to back it up.</p>
-      <span class="cap-status active">Production Ready</span>
-    </div>
-    <div class="cap-card">
-      <div class="cap-label">Active</div>
-      <h3>Full-Stack Reporting Systems</h3>
-      <p>Operational dashboards in React + Node.js + MongoDB. Role-based access, live data feeds, and decision-support interfaces. Designed for field teams, not just offices.</p>
-      <span class="cap-status active">Production Ready</span>
-    </div>
-    <div class="cap-card blue-acc">
-      <div class="cap-label blue">In Training</div>
-      <h3>Mission Planning & Simulation</h3>
-      <p>Autonomous flight planning in QGroundControl. Simulation via SITL / jMAVSim. MAVLink protocol, telemetry analysis, and pre-flight systems validation. Active sprint training documented publicly.</p>
-      <span class="cap-status training">Certification Targeted 2026</span>
-    </div>
-    <div class="cap-card blue-acc">
-      <div class="cap-label blue">Roadmap</div>
-      <h3>Thermography & Infrastructure Inspection</h3>
-      <p>Aerial thermal analysis for industrial asset monitoring, energy infrastructure, and agriculture. NDVI and multispectral data interpretation. Planned as second certification phase post-pilot license.</p>
-      <span class="cap-status roadmap">Post-Licensing</span>
-    </div>
-    <div class="cap-card blue-acc">
-      <div class="cap-label blue">Roadmap</div>
-      <h3>Photogrammetry & Site Survey</h3>
-      <p>Topographic survey, orthomosaic generation, and volumetric analysis for construction, infrastructure, and precision agriculture. Built on existing data processing foundations.</p>
-      <span class="cap-status roadmap">Post-Licensing</span>
-    </div>
-  </div>
-</section>
-
-<!-- STACK -->
-<section class="stack-section">
-  <div class="section-header">
-    <span class="section-num">03</span>
-    <h2 class="section-title">Technical Stack</h2>
-    <div class="section-line"></div>
-  </div>
-  <div class="stack-cols">
-    <div>
-      <div class="stack-group-title">Data & Automation</div>
-      <div class="stack-items">
-        <div class="stack-item"><div class="stack-dot"></div><div class="stack-name">Python</div><div class="stack-note">ETL · pipelines · scripting</div></div>
-        <div class="stack-item"><div class="stack-dot"></div><div class="stack-name">SQL / MongoDB</div><div class="stack-note">Databases · aggregation</div></div>
-        <div class="stack-item"><div class="stack-dot"></div><div class="stack-name">Pandas / Playwright</div><div class="stack-note">Analysis · scraping</div></div>
-        <div class="stack-item"><div class="stack-dot"></div><div class="stack-name">Power BI / Excel</div><div class="stack-note">Reporting · dashboards</div></div>
-        <div class="stack-item"><div class="stack-dot"></div><div class="stack-name">React / Node.js</div><div class="stack-note">Full-stack applications</div></div>
+      /* ── RESPONSIVE ─────────────────────────────────── */
+      @media (max-width: 900px) {
+        section {
+          padding: 3rem 1.5rem;
+        }
+        nav,
+        footer {
+          padding: 0 1.5rem;
+        }
+        .hero {
+          padding: 80px 1.5rem 3rem;
+        }
+        .hero-telemetry {
+          display: none;
+        }
+        .value-pipeline {
+          grid-template-columns: 1fr 1fr;
+        }
+        .stack-cols {
+          grid-template-columns: 1fr;
+        }
+        .exp-item {
+          grid-template-columns: 1fr;
+          gap: 0.5rem;
+        }
+        .vision-grid,
+        .contact-grid {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+        .nav-links {
+          display: none;
+        }
+        footer {
+          flex-direction: column;
+          gap: 0.5rem;
+          text-align: center;
+        }
+        .pipeline-step::after {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- BOOT SCREEN -->
+    <div id="boot">
+      <div class="boot-logo">JE // SYS</div>
+      <div class="boot-sub">
+        Field Intelligence Platform · v2.0 · Initializing
+      </div>
+      <div class="boot-lines" id="bootLines"></div>
+      <div class="boot-bar-wrap">
+        <div class="boot-bar-label">Loading profile</div>
+        <div class="boot-bar-track">
+          <div class="boot-bar-fill" id="bootBar"></div>
+        </div>
+        <div class="boot-pct" id="bootPct">0%</div>
       </div>
     </div>
-    <div>
-      <div class="stack-group-title">UAV & Flight Systems</div>
-      <div class="stack-items">
-        <div class="stack-item"><div class="stack-dot blue"></div><div class="stack-name">QGroundControl</div><div class="stack-note">Mission planning · GCS</div></div>
-        <div class="stack-item"><div class="stack-dot blue"></div><div class="stack-name">MAVLink Protocol</div><div class="stack-note">Telemetry · comms</div></div>
-        <div class="stack-item"><div class="stack-dot blue"></div><div class="stack-name">pyulog + Jupyter</div><div class="stack-note">ULG parsing · analysis</div></div>
-        <div class="stack-item"><div class="stack-dot blue"></div><div class="stack-name">pandas + matplotlib</div><div class="stack-note">Telemetry visualization</div></div>
-        <div class="stack-item"><div class="stack-dot blue"></div><div class="stack-name">ArduPilot / PX4</div><div class="stack-note">Flight control systems</div></div>
-        <div class="stack-item"><div class="stack-dot blue"></div><div class="stack-name">SITL / jMAVSim</div><div class="stack-note">Simulation environment</div></div>
-        <div class="stack-item"><div class="stack-dot blue"></div><div class="stack-name">Mission Planner</div><div class="stack-note">Flight ops · waypoints</div></div>
-      </div>
-    </div>
-    <div>
-      <div class="stack-group-title">Infrastructure & Methods</div>
-      <div class="stack-items">
-        <div class="stack-item"><div class="stack-dot orange"></div><div class="stack-name">AWS / Docker</div><div class="stack-note">Cloud · containers</div></div>
-        <div class="stack-item"><div class="stack-dot orange"></div><div class="stack-name">Git / GitHub</div><div class="stack-note">Version control</div></div>
-        <div class="stack-item"><div class="stack-dot orange"></div><div class="stack-name">Lean / CI Frameworks</div><div class="stack-note">Process improvement</div></div>
-        <div class="stack-item"><div class="stack-dot orange"></div><div class="stack-name">CAD (basic)</div><div class="stack-note">Technical drawing</div></div>
-        <div class="stack-item"><div class="stack-dot orange"></div><div class="stack-name">Jira / Notion</div><div class="stack-note">Project management</div></div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- PROJECTS -->
-<section id="projects">
-  <div class="section-header">
-    <span class="section-num">04</span>
-    <h2 class="section-title">Projects</h2>
-    <div class="section-line"></div>
-  </div>
-  <div class="projects-grid">
-    <div class="project-card featured">
-      <div class="proj-status live">Live · MVP</div>
-      <h3>Celeritas</h3>
-      <p class="proj-desc">Full-stack logistics matching platform coordinating suppliers, drivers, and clients with order assignment and status tracking. Backend logic for multi-entity workflow management, dispatching, and supply chain visibility — the kind of system that maps directly to UAV fleet coordination.</p>
-      <div class="proj-stack">
-        <span class="proj-tag">React</span><span class="proj-tag">Node.js</span><span class="proj-tag">MongoDB</span><span class="proj-tag">Logistics</span>
-      </div>
-    </div>
-    <div class="project-card featured">
-      <div class="proj-status live">Live · Production</div>
-      <h3>Tradie Leads Prospector</h3>
-      <p class="proj-desc">Automated ETL pipeline extracting, scoring, and exporting structured data across 70+ locations with zero manual intervention. Built a 9-signal scoring model for conversion potential. Demonstrates the same pipeline architecture used for sensor data processing in UAV workflows.</p>
-      <div class="proj-stack">
-        <span class="proj-tag">Python</span><span class="proj-tag">Playwright</span><span class="proj-tag">Pandas</span><span class="proj-tag">ETL</span>
-      </div>
-    </div>
-    <div class="project-card">
-      <div class="proj-status sim">Simulation · Active</div>
-      <h3>UAV Mission Intelligence</h3>
-      <p class="proj-desc">Active SITL training environment using QGroundControl + jMAVSim. Autonomous mission planning, MAVLink telemetry analysis, safe-recovery behavior testing, and pre-flight protocol development. Every sprint documented in the log below.</p>
-      <div class="proj-stack">
-        <span class="proj-tag">QGroundControl</span><span class="proj-tag">jMAVSim</span><span class="proj-tag">MAVLink</span><span class="proj-tag">SITL</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SPRINT LOG -->
-<section class="sprints-section" id="sprints">
-  <div class="section-header">
-    <span class="section-num">05</span>
-    <h2 class="section-title">Sprint Log</h2>
-    <div class="section-line"></div>
-  </div>
-  <div class="sprint-timeline">
-    <div class="sprint-entry">
-      <div class="sprint-date">June 2026 · Sprint 03</div>
-      <div class="sprint-title">ORTHOMOSAIC + NDVI — Georeferenced Aerial Map (WebODM)</div>
-      <p class="sprint-body">Processed a real 77-image aerial dataset (Valley Parkway Connector, Ohio) through a full photogrammetry pipeline using WebODM + OpenDroneMap. Generated a georeferenced orthomosaic (EPSG:32617, 0.08 m/px, 4457×3355 px) covering 4.64 ha. Extracted GPS coordinates from EXIF metadata, plotted image capture positions and altitude profile. Computed NDVI from RGB+NIR bands via rasterio: mean NDVI 0.382, 73.4% healthy vegetation. All outputs documented via pyulog + Jupyter pipeline.</p>
-      <div class="sprint-tags">
-        <span class="sprint-tag">WebODM</span><span class="sprint-tag">OpenDroneMap</span><span class="sprint-tag">rasterio</span><span class="sprint-tag">NDVI</span><span class="sprint-tag">Orthomosaic</span><span class="sprint-tag">GeoTIFF</span><span class="sprint-tag">EPSG:32617</span><span class="sprint-tag">Photogrammetry</span><span class="sprint-tag">Jupyter</span>
-      </div>
-      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint03_orthomosaic_aukerman.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
-    </div>
-    <div class="sprint-entry">
-      <div class="sprint-date">June 2026 · Sprint 02</div>
-      <div class="sprint-title">BATTERY FAILSAFE — Emergency Auto Land (Simulated)</div>
-      <p class="sprint-body">Executed a battery failsafe validation test in PX4 SITL / jMAVSim. Vehicle was running an autonomous mission when battery failure was injected at t=33.2s via <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">failure battery off</code> command. Flight controller triggered a 5-second loiter hold (nav_state=4) before transitioning to Auto Land (nav_state=18). Vehicle executed a controlled descent and landed at t=65.3s. Battery drained from 100% to 0%. Full nav_state timeline and battery drain extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_0_2026-6-11-14-25-29.ulg</code> and documented via pyulog + Jupyter pipeline.</p>
-      <div class="sprint-tags">
-        <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Failsafe</span><span class="sprint-tag">Battery</span><span class="sprint-tag">Auto Land</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">nav_state</span>
-      </div>
-      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_failsafe_battery.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
-    </div>
-    <div class="sprint-entry">
-      <div class="sprint-date">June 2026 · Sprint 02</div>
-      <div class="sprint-title">GPS LOSS FAILSAFE — Blind Land Triggered (Simulated)</div>
-      <p class="sprint-body">Executed a GPS loss failsafe validation test in PX4 SITL / jMAVSim. Vehicle was running an autonomous mission when GPS failure was injected at t=30.0s via <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">failure gps off</code> command. EKF immediately lost valid position estimate, switching to fake_pos dead reckoning. Flight controller transitioned from nav_state=3 (Auto Mission) to nav_state=12 (Descend / Blind Land) with zero reaction lag. Vehicle executed a controlled descent and landed at t=72.2s. Full nav_state timeline and EKF behavior extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_0_2026-6-11-13-47-44.ulg</code> and documented via pyulog + Jupyter pipeline.</p>
-      <div class="sprint-tags">
-        <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Failsafe</span><span class="sprint-tag">GPS Loss</span><span class="sprint-tag">Blind Land</span><span class="sprint-tag">EKF</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">nav_state</span>
-      </div>
-      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_failsafe_gps_loss.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
-    </div>
-    <div class="sprint-entry">
-      <div class="sprint-date">June 2026 · Sprint 02</div>
-      <div class="sprint-title">SIGNAL LOSS FAILSAFE — RTL Triggered Mid-Mission (Simulated)</div>
-      <p class="sprint-body">Executed a failsafe validation test in PX4 SITL / jMAVSim. Vehicle was running an autonomous mission (42 waypoints) when a simulated signal loss was introduced at t=268.5s. The flight controller correctly detected the loss, transitioned from nav_state=3 (Auto Mission) to nav_state=5 (RTL), and executed an autonomous return-to-launch without manual input. Signal restored at t=332.9s. Total flight time: 5.6 min. Failsafe trigger, RTL trajectory, and nav_state transitions extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_0_2026-6-6-22-21-20.ulg</code> and documented via pyulog + Jupyter pipeline.</p>
-      <div class="sprint-tags">
-        <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Failsafe</span><span class="sprint-tag">Signal Loss</span><span class="sprint-tag">RTL</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">nav_state</span>
-      </div>
-      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_failsafe_signal_loss.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
-    </div>
-    <div class="sprint-entry">
-      <div class="sprint-date">June 2026 · Sprint 02</div>
-      <div class="sprint-title">GRID_01 — Photogrammetric Survey Mission (Simulated)</div>
-      <p class="sprint-body">Executed a full grid survey mission in PX4 SITL / jMAVSim. Mission: GRID_01 — autonomous photogrammetric mapping pattern at 80m AGL. Total distance covered: 1,115.2m. Max speed: ~5.0 m/s. Upon completing the final waypoint, the vehicle entered Safe Recovery autonomously, returned to Home, and executed a precision vertical landing without manual input. No GPS or compass errors logged. Telemetry extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_0_2026-6-7-21-00-04.ulg</code> and processed via pyulog + Jupyter pipeline.</p>
-      <div class="sprint-tags">
-        <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Survey / Grid</span><span class="sprint-tag">Safe Recovery</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">80m AGL</span>
-      </div>
-      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_grid01_analysis.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
-    </div>
-    <div class="sprint-entry">
-      <div class="sprint-date">June 2026 · Sprint 02</div>
-      <div class="sprint-title">ORBITAL_01 — Dual-Pass Survey Mission (Simulated)</div>
-      <p class="sprint-body">Executed a dual-pass survey mission in PX4 SITL / jMAVSim — two overlapping transect patterns over the same area, simulating high-density photogrammetric coverage for infrastructure inspection. Total flight time: 12.6 min. Mission items: 58. Altitude held stable throughout both passes. Telemetry extracted from <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">log_5_2026-6-5-18-26-47.ulg</code> and processed via pyulog + Jupyter pipeline.</p>
-      <div class="sprint-tags">
-        <span class="sprint-tag">PX4 v1.18</span><span class="sprint-tag">QGroundControl</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">Dual Survey</span><span class="sprint-tag">pyulog</span><span class="sprint-tag">Jupyter</span><span class="sprint-tag">12.6 min</span>
-      </div>
-      <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_orbital01_analysis.html" target="_blank" style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
-    </div>
-    <div class="sprint-entry">
-      <div class="sprint-date">June 2026 · Sprint 01</div>
-      <div class="sprint-title">PX4 SITL + jMAVSim — Full Environment Setup on macOS (arm64)</div>
-      <p class="sprint-body">Installed and configured PX4 SITL from source on macOS arm64. Resolved Python dependency conflicts (kconfiglib, jsonschema, empy, lxml) inside an isolated venv. Fixed jMAVSim Java compilation error by installing OpenJDK 17 via Homebrew and forcing a clean rebuild. Connected QGroundControl via UDP port 14550. Validated the full stack with arm → takeoff → hover → land sequence. Log file generated and saved as evidence (<code style="font-family:var(--mono);font-size:11px;color:var(--accent)">.ulg</code>).</p>
-      <div class="sprint-tags">
-        <span class="sprint-tag">PX4 SITL</span><span class="sprint-tag">jMAVSim</span><span class="sprint-tag">macOS arm64</span><span class="sprint-tag">OpenJDK 17</span><span class="sprint-tag">MAVLink UDP</span><span class="sprint-tag">QGC</span><span class="sprint-tag">Python venv</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- EXPERIENCE -->
-<section id="experience">
-  <div class="section-header">
-    <span class="section-num">06</span>
-    <h2 class="section-title">Experience</h2>
-    <div class="section-line"></div>
-  </div>
-  <div class="exp-list">
-    <div class="exp-item">
-      <div class="exp-left">
-        <div class="exp-period">2024 – Present</div>
-        <div class="exp-company">Niko's Quality Cakes</div>
-        <div class="exp-loc">Melbourne, Australia</div>
-      </div>
-      <div class="exp-right">
-        <div class="exp-role">Operations Coordinator</div>
-        <ul class="exp-bullets">
-          <li>Managed full order lifecycle in a high-volume environment — intake, scheduling, fulfilment, and quality control under tight deadlines. Same operational discipline required in UAV service delivery.</li>
-          <li>Identified and fixed workflow gaps between customer intake and production execution, reducing rework and delays through process redesign.</li>
-          <li>Implemented inventory tracking and reporting practices to maintain stock accuracy and production continuity.</li>
+    <!-- MAIN -->
+    <div id="main">
+      <nav>
+        <div class="nav-logo">JE<span> // </span>UAV · Data · Ops</div>
+        <ul class="nav-links">
+          <li><a href="#value">Offer</a></li>
+          <li><a href="#capabilities">Skills</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#sprints">Sprint Log</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
-      </div>
-    </div>
-    <div class="exp-item">
-      <div class="exp-left">
-        <div class="exp-period">2022</div>
-        <div class="exp-company">La Italiana</div>
-        <div class="exp-loc">México</div>
-      </div>
-      <div class="exp-right">
-        <div class="exp-role">Sales & Operations</div>
-        <ul class="exp-bullets">
-          <li>Managed client relationships and order pipelines from enquiry through resolution, building documentation standards that reduced manual work.</li>
-          <li>Supported sales reporting with structured data practices — early foundation for operational data work.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="exp-item">
-      <div class="exp-left">
-        <div class="exp-period">2021</div>
-        <div class="exp-company">Matrix Fitness</div>
-        <div class="exp-loc">México</div>
-      </div>
-      <div class="exp-right">
-        <div class="exp-role">Logistics Assistant</div>
-        <ul class="exp-bullets">
-          <li>Coordinated multi-location deliveries and built reporting practices to improve stock visibility across distribution sites.</li>
-          <li>Hands-on logistics execution in a fast-paced environment — understanding the real cost of poor data in physical operations.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
+      </nav>
 
-<!-- EDUCATION -->
-<section>
-  <div class="section-header">
-    <span class="section-num">07</span>
-    <h2 class="section-title">Education</h2>
-    <div class="section-line"></div>
-  </div>
-  <div class="edu-grid">
-    <div class="edu-item">
-      <div class="edu-degree">Bachelor of Industrial Engineering</div>
-      <div class="edu-inst">TecNM — ITSPR, México</div>
-      <div class="edu-year">Graduated 2022</div>
-      <p class="edu-note">Operations systems, process engineering, logistics, quality management, and industrial automation. The analytical foundation for everything else.</p>
-    </div>
-    <div class="edu-item">
-      <div class="edu-degree">Diploma of Information Technology</div>
-      <div class="edu-inst">Laneway Education, Melbourne</div>
-      <div class="edu-year">2026</div>
-      <p class="edu-note">Full-stack development, databases, and data pipelines. Converted engineering systems thinking into working software. Projects: Celeritas, Tradie Leads Prospector.</p>
-    </div>
-    <div class="edu-item">
-      <div class="edu-degree">Commercial UAV Pilot License</div>
-      <div class="edu-inst">Drones México</div>
-      <div class="edu-year">Targeted 2026</div>
-      <p class="edu-note">Commercial UAV certification, DGAC airspace regulations, safety protocols, and operational licensing for professional drone services in Mexico and internationally.</p>
-    </div>
-    <div class="edu-item">
-      <div class="edu-degree">Google Certifications</div>
-      <div class="edu-inst">Google / Coursera</div>
-      <div class="edu-year">Completed</div>
-      <p class="edu-note">Digital Marketing & E-Commerce. UX Design Professional Certificate. Supporting skills for client communication and service delivery workflows.</p>
-    </div>
-  </div>
-</section>
+      <!-- HERO -->
+      <section class="hero">
+        <div class="hero-grid"></div>
+        <div class="hero-tag">
+          Industrial Engineer · UAV Systems · Data Automation
+        </div>
+        <h1>Jose<br /><em>Escobar</em></h1>
+        <p class="hero-pitch">
+          I design missions, process the data, and deliver structured
+          operational reports — <strong>end-to-end, in-house.</strong><br />
+          Industrial Engineering foundation. Full-stack development. UAV
+          telemetry and simulation in active training.
+        </p>
+        <div class="hero-sub">México · Open to international work</div>
+        <div class="chips-carousel">
+          <div class="chips-track">
+            <!-- SET 1 -->
+            <span class="chip">Python</span>
+            <span class="chip">SQL / MongoDB</span>
+            <span class="chip">React</span>
+            <span class="chip">Node.js</span>
+            <span class="chip">Pandas</span>
+            <span class="chip">Power BI</span>
+            <span class="chip blue">QGroundControl</span>
+            <span class="chip blue">MAVLink</span>
+            <span class="chip blue">ArduPilot / PX4</span>
+            <span class="chip blue">SITL / jMAVSim</span>
+            <span class="chip blue">pyulog</span>
+            <span class="chip blue">Mission Planning</span>
+            <span class="chip blue">Sentinel-2</span>
+            <span class="chip blue">rasterio</span>
+            <span class="chip blue">WebODM</span>
+            <span class="chip blue">Multispectral / NDVI</span>
+            <span class="chip orange">AWS / Docker</span>
+            <span class="chip orange">Git / GitHub</span>
+            <span class="chip orange">Lean / CI</span>
+            <span class="chip orange">Jira / Notion</span>
+            <span class="chip dim">Thermography · Planned</span>
+            <!-- SET 2 — duplicate for seamless loop -->
+            <span class="chip">Python</span>
+            <span class="chip">SQL / MongoDB</span>
+            <span class="chip">React</span>
+            <span class="chip">Node.js</span>
+            <span class="chip">Pandas</span>
+            <span class="chip">Power BI</span>
+            <span class="chip blue">QGroundControl</span>
+            <span class="chip blue">MAVLink</span>
+            <span class="chip blue">ArduPilot / PX4</span>
+            <span class="chip blue">SITL / jMAVSim</span>
+            <span class="chip blue">pyulog</span>
+            <span class="chip blue">Mission Planning</span>
+            <span class="chip blue">Sentinel-2</span>
+            <span class="chip blue">rasterio</span>
+            <span class="chip blue">WebODM</span>
+            <span class="chip blue">Multispectral / NDVI</span>
+            <span class="chip orange">AWS / Docker</span>
+            <span class="chip orange">Git / GitHub</span>
+            <span class="chip orange">Lean / CI</span>
+            <span class="chip orange">Jira / Notion</span>
+            <span class="chip dim">Thermography · Planned</span>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <a href="#contact" class="btn btn-primary">Get in touch ↓</a>
+          <a href="mailto:jaemaciel.55@gmail.com" class="btn btn-outline"
+            >jaemaciel.55@gmail.com</a
+          >
+        </div>
+        <div class="hero-telemetry">
+          <div class="telem-block">
+            <span class="val">3+</span><span class="lbl">Systems Shipped</span>
+          </div>
+          <div class="telem-block">
+            <span class="val">2</span><span class="lbl">Degrees</span>
+          </div>
+          <div class="telem-block">
+            <span class="val">EN/ES</span><span class="lbl">Languages</span>
+          </div>
+          <div class="telem-block">
+            <span class="val">INT'L</span><span class="lbl">Available</span>
+          </div>
+        </div>
+      </section>
 
-<!-- VISION -->
-<section class="vision-section">
-  <div class="section-header">
-    <span class="section-num">08</span>
-    <h2 class="section-title">Direction</h2>
-    <div class="section-line"></div>
-  </div>
-  <div class="vision-grid">
-    <div class="vision-quote">
-      From raw flight<br>to <em>decision-ready</em><br>intelligence.
+      <!-- VALUE PIPELINE -->
+      <section class="value-section" id="value">
+        <div class="section-header">
+          <span class="section-num">01</span>
+          <h2 class="section-title">What I Deliver</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="value-pipeline">
+          <div class="pipeline-step">
+            <div class="pipe-num">Step 01</div>
+            <div class="pipe-title">Mission Design</div>
+            <p class="pipe-desc">
+              Flight planning, waypoints, airspace assessment, safety protocols,
+              and pre-flight validation.
+            </p>
+          </div>
+          <div class="pipeline-step">
+            <div class="pipe-num">Step 02</div>
+            <div class="pipe-title">Data Capture</div>
+            <p class="pipe-desc">
+              Autonomous flight execution, sensor data collection — visual,
+              thermal, multispectral.
+            </p>
+          </div>
+          <div class="pipeline-step">
+            <div class="pipe-num">Step 03</div>
+            <div class="pipe-title">Processing & Analysis</div>
+            <p class="pipe-desc">
+              Python pipelines for telemetry parsing, imagery analysis, anomaly
+              detection, and KPI extraction.
+            </p>
+          </div>
+          <div class="pipeline-step">
+            <div class="pipe-num">Step 04</div>
+            <div class="pipe-title">Operational Report</div>
+            <p class="pipe-desc">
+              Structured deliverables — dashboards, automated reports, and
+              decision-ready data for the client.
+            </p>
+          </div>
+        </div>
+        <p class="value-note">
+          <strong>The differentiator:</strong> Most drone operators deliver raw
+          footage. Most data engineers don't fly. I'm building the capacity to
+          own the full pipeline — from airframe to actionable insight — which
+          means fewer handoffs, lower cost, and faster turnaround for the
+          client.
+        </p>
+      </section>
+
+      <!-- CAPABILITIES -->
+      <section id="capabilities">
+        <div class="section-header">
+          <span class="section-num">02</span>
+          <h2 class="section-title">Capabilities</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="cap-grid">
+          <div class="cap-card">
+            <div class="cap-label">Active</div>
+            <h3>Automated Data Pipelines</h3>
+            <p>
+              End-to-end ETL systems in Python — from raw input to structured
+              output. Telemetry parsing, scoring models, anomaly detection, and
+              operational reporting at scale. Demonstrable in production.
+            </p>
+            <span class="cap-status active">Production Ready</span>
+          </div>
+          <div class="cap-card">
+            <div class="cap-label">Active</div>
+            <h3>Operations Intelligence</h3>
+            <p>
+              Industrial Engineering background applied to field operations.
+              Process design, logistics coordination, KPI frameworks, and
+              continuous improvement — with the systems thinking to back it up.
+            </p>
+            <span class="cap-status active">Production Ready</span>
+          </div>
+          <div class="cap-card">
+            <div class="cap-label">Active</div>
+            <h3>Full-Stack Reporting Systems</h3>
+            <p>
+              Operational dashboards in React + Node.js + MongoDB. Role-based
+              access, live data feeds, and decision-support interfaces. Designed
+              for field teams, not just offices.
+            </p>
+            <span class="cap-status active">Production Ready</span>
+          </div>
+          <div class="cap-card blue-acc">
+            <div class="cap-label blue">In Training</div>
+            <h3>Mission Planning & Simulation</h3>
+            <p>
+              Autonomous flight planning in QGroundControl. Simulation via SITL
+              / jMAVSim. MAVLink protocol, telemetry analysis, and pre-flight
+              systems validation. Active sprint training documented publicly.
+            </p>
+            <span class="cap-status training">Certification Targeted 2026</span>
+          </div>
+          <div class="cap-card blue-acc">
+            <div class="cap-label blue">Roadmap</div>
+            <h3>Thermography & Infrastructure Inspection</h3>
+            <p>
+              Aerial thermal analysis for industrial asset monitoring, energy
+              infrastructure, and agriculture. NDVI and multispectral data
+              interpretation. Planned as second certification phase post-pilot
+              license.
+            </p>
+            <span class="cap-status roadmap">Post-Licensing</span>
+          </div>
+          <div class="cap-card blue-acc">
+            <div class="cap-label blue">Roadmap</div>
+            <h3>Photogrammetry & Site Survey</h3>
+            <p>
+              Topographic survey, orthomosaic generation, and volumetric
+              analysis for construction, infrastructure, and precision
+              agriculture. Built on existing data processing foundations.
+            </p>
+            <span class="cap-status roadmap">Post-Licensing</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- STACK -->
+      <section class="stack-section">
+        <div class="section-header">
+          <span class="section-num">03</span>
+          <h2 class="section-title">Technical Stack</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="stack-cols">
+          <div>
+            <div class="stack-group-title">Data & Automation</div>
+            <div class="stack-items">
+              <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div class="stack-name">Python</div>
+                <div class="stack-note">ETL · pipelines · scripting</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div class="stack-name">SQL / MongoDB</div>
+                <div class="stack-note">Databases · aggregation</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div class="stack-name">Pandas</div>
+                <div class="stack-note">Analysis · data wrangling</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div class="stack-name">React</div>
+                <div class="stack-note">Frontend · dashboards</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div class="stack-name">Node.js</div>
+                <div class="stack-note">Backend · APIs</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div class="stack-name">Power BI</div>
+                <div class="stack-note">Reporting · BI dashboards</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="stack-group-title">UAV · Flight · Geospatial</div>
+            <div class="stack-items">
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">QGroundControl</div>
+                <div class="stack-note">Mission planning · GCS</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">MAVLink Protocol</div>
+                <div class="stack-note">Telemetry · comms</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">ArduPilot / PX4</div>
+                <div class="stack-note">Flight control systems</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">SITL / jMAVSim</div>
+                <div class="stack-note">Simulation environment</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">pyulog + Jupyter</div>
+                <div class="stack-note">ULG parsing · analysis</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">Sentinel-2 / Planetary Computer</div>
+                <div class="stack-note">Satellite imagery · API</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">rasterio / stackstac</div>
+                <div class="stack-note">Raster · band processing</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">WebODM / OpenDroneMap</div>
+                <div class="stack-note">Photogrammetry · orthomosaic</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">Multispectral / NDVI</div>
+                <div class="stack-note">Vegetation indices</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="stack-group-title">Infrastructure & Methods</div>
+            <div class="stack-items">
+              <div class="stack-item">
+                <div class="stack-dot orange"></div>
+                <div class="stack-name">AWS / Docker</div>
+                <div class="stack-note">Cloud · containers</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot orange"></div>
+                <div class="stack-name">Git / GitHub</div>
+                <div class="stack-note">Version control</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot orange"></div>
+                <div class="stack-name">Lean / CI Frameworks</div>
+                <div class="stack-note">Process improvement</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot orange"></div>
+                <div class="stack-name">CAD (basic)</div>
+                <div class="stack-note">Technical drawing</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot orange"></div>
+                <div class="stack-name">Jira / Notion</div>
+                <div class="stack-note">Project management</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROJECTS -->
+      <section id="projects">
+        <div class="section-header">
+          <span class="section-num">04</span>
+          <h2 class="section-title">Projects</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="projects-grid">
+          <div class="project-card featured">
+            <div class="proj-status live">Live · MVP</div>
+            <h3>Celeritas</h3>
+            <p class="proj-desc">
+              Full-stack logistics matching platform coordinating suppliers,
+              drivers, and clients with order assignment and status tracking.
+              Backend logic for multi-entity workflow management, dispatching,
+              and supply chain visibility — the kind of system that maps
+              directly to UAV fleet coordination.
+            </p>
+            <div class="proj-stack">
+              <span class="proj-tag">React</span
+              ><span class="proj-tag">Node.js</span
+              ><span class="proj-tag">MongoDB</span
+              ><span class="proj-tag">Logistics</span>
+            </div>
+          </div>
+          <div class="project-card featured">
+            <div class="proj-status live">Live · Production</div>
+            <h3>Tradie Leads Prospector</h3>
+            <p class="proj-desc">
+              Automated ETL pipeline extracting, scoring, and exporting
+              structured data across 70+ locations with zero manual
+              intervention. Built a 9-signal scoring model for conversion
+              potential. Demonstrates the same pipeline architecture used for
+              sensor data processing in UAV workflows.
+            </p>
+            <div class="proj-stack">
+              <span class="proj-tag">Python</span
+              ><span class="proj-tag">Playwright</span
+              ><span class="proj-tag">Pandas</span
+              ><span class="proj-tag">ETL</span>
+            </div>
+          </div>
+          <div class="project-card">
+            <div class="proj-status sim">Simulation · Active</div>
+            <h3>UAV Mission Intelligence</h3>
+            <p class="proj-desc">
+              Active SITL training environment using QGroundControl + jMAVSim.
+              Autonomous mission planning, MAVLink telemetry analysis,
+              safe-recovery behavior testing, and pre-flight protocol
+              development. Every sprint documented in the log below.
+            </p>
+            <div class="proj-stack">
+              <span class="proj-tag">QGroundControl</span
+              ><span class="proj-tag">jMAVSim</span
+              ><span class="proj-tag">MAVLink</span
+              ><span class="proj-tag">SITL</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SPRINT LOG -->
+      <section class="sprints-section" id="sprints">
+        <div class="sprint-telem">
+          <div class="telem-block">
+            <span class="val">8</span><span class="lbl">Log Entries</span>
+          </div>
+        </div>
+        <div class="section-header">
+          <span class="section-num">05</span>
+          <h2 class="section-title">Sprint Log</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="sprint-timeline">
+          <div class="sprint-entry">
+            <div class="sprint-date">June 2026 · Sprint 04</div>
+            <div class="sprint-title">
+              MULTISPECTRAL AGRICULTURE — Sentinel-2 Satellite Analysis
+              (Jalisco, Mexico)
+            </div>
+            <p class="sprint-body">
+              Connected to Microsoft Planetary Computer API (pystac-client +
+              stackstac) and queried Sentinel-2 L2A imagery over an agricultural
+              region in Jalisco, Mexico. Selected the cleanest scene available
+              (0.002% cloud cover, 2024-05-26). Stacked 5 spectral bands (B03,
+              B04, B05, B08, B11) at 10m/px across ~245 km² in EPSG:32614.
+              Calculated four vegetation indices from real satellite data: NDVI
+              (mean 0.186, max 0.837), NDWI water stress (mean −0.254), NDRE
+              chlorophyll via red edge band (mean 0.117, max 0.761), and SAVI
+              soil-adjusted (mean 0.279, L=0.5). 5.2% of valid pixels classified
+              as healthy vegetation (NDVI > 0.4). Generated a 5-panel
+              publication-quality map with false color composite
+              (NIR/Red/Green). Full pipeline documented via Jupyter notebook.
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">Sentinel-2</span
+              ><span class="sprint-tag">Planetary Computer</span
+              ><span class="sprint-tag">pystac-client</span
+              ><span class="sprint-tag">stackstac</span
+              ><span class="sprint-tag">NDVI</span
+              ><span class="sprint-tag">NDWI</span
+              ><span class="sprint-tag">NDRE</span
+              ><span class="sprint-tag">SAVI</span
+              ><span class="sprint-tag">rasterio</span
+              ><span class="sprint-tag">EPSG:32614</span
+              ><span class="sprint-tag">Multispectral</span
+              ><span class="sprint-tag">Jupyter</span>
+            </div>
+            <a
+              href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint04_multispectral_agriculture.html"
+              target="_blank"
+              style="
+                display: inline-block;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.85rem;
+                border: 1px solid var(--accent);
+                color: var(--accent);
+                font-family: var(--mono);
+                font-size: 11px;
+                text-decoration: none;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.background = 'var(--accent)';
+                this.style.color = '#000';
+              "
+              onmouseout="
+                this.style.background = 'transparent';
+                this.style.color = 'var(--accent)';
+              "
+              >VIEW ANALYSIS →</a
+            >
+          </div>
+          <div class="sprint-entry">
+            <div class="sprint-date">June 2026 · Sprint 03</div>
+            <div class="sprint-title">
+              ORTHOMOSAIC + NDVI — Georeferenced Aerial Map (WebODM)
+            </div>
+            <p class="sprint-body">
+              Processed a real 77-image aerial dataset (Valley Parkway
+              Connector, Ohio) through a full photogrammetry pipeline using
+              WebODM + OpenDroneMap. Generated a georeferenced orthomosaic
+              (EPSG:32617, 0.08 m/px, 4457×3355 px) covering 4.64 ha. Extracted
+              GPS coordinates from EXIF metadata, plotted image capture
+              positions and altitude profile. Computed NDVI from RGB+NIR bands
+              via rasterio: mean NDVI 0.382, 73.4% healthy vegetation. All
+              outputs documented via pyulog + Jupyter pipeline.
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">WebODM</span
+              ><span class="sprint-tag">OpenDroneMap</span
+              ><span class="sprint-tag">rasterio</span
+              ><span class="sprint-tag">NDVI</span
+              ><span class="sprint-tag">Orthomosaic</span
+              ><span class="sprint-tag">GeoTIFF</span
+              ><span class="sprint-tag">EPSG:32617</span
+              ><span class="sprint-tag">Photogrammetry</span
+              ><span class="sprint-tag">Jupyter</span>
+            </div>
+            <a
+              href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint03_orthomosaic_aukerman.html"
+              target="_blank"
+              style="
+                display: inline-block;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.85rem;
+                border: 1px solid var(--accent);
+                color: var(--accent);
+                font-family: var(--mono);
+                font-size: 11px;
+                text-decoration: none;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.background = 'var(--accent)';
+                this.style.color = '#000';
+              "
+              onmouseout="
+                this.style.background = 'transparent';
+                this.style.color = 'var(--accent)';
+              "
+              >VIEW ANALYSIS →</a
+            >
+          </div>
+          <div class="sprint-entry">
+            <div class="sprint-date">June 2026 · Sprint 02</div>
+            <div class="sprint-title">
+              BATTERY FAILSAFE — Emergency Auto Land (Simulated)
+            </div>
+            <p class="sprint-body">
+              Executed a battery failsafe validation test in PX4 SITL / jMAVSim.
+              Vehicle was running an autonomous mission when battery failure was
+              injected at t=33.2s via
+              <code
+                style="
+                  font-family: var(--mono);
+                  font-size: 11px;
+                  color: var(--accent);
+                "
+                >failure battery off</code
+              >
+              command. Flight controller triggered a 5-second loiter hold
+              (nav_state=4) before transitioning to Auto Land (nav_state=18).
+              Vehicle executed a controlled descent and landed at t=65.3s.
+              Battery drained from 100% to 0%. Full nav_state timeline and
+              battery drain extracted from
+              <code
+                style="
+                  font-family: var(--mono);
+                  font-size: 11px;
+                  color: var(--accent);
+                "
+                >log_0_2026-6-11-14-25-29.ulg</code
+              >
+              and documented via pyulog + Jupyter pipeline.
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">PX4 v1.18</span
+              ><span class="sprint-tag">QGroundControl</span
+              ><span class="sprint-tag">jMAVSim</span
+              ><span class="sprint-tag">Failsafe</span
+              ><span class="sprint-tag">Battery</span
+              ><span class="sprint-tag">Auto Land</span
+              ><span class="sprint-tag">pyulog</span
+              ><span class="sprint-tag">Jupyter</span
+              ><span class="sprint-tag">nav_state</span>
+            </div>
+            <a
+              href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_failsafe_battery.html"
+              target="_blank"
+              style="
+                display: inline-block;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.85rem;
+                border: 1px solid var(--accent);
+                color: var(--accent);
+                font-family: var(--mono);
+                font-size: 11px;
+                text-decoration: none;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.background = 'var(--accent)';
+                this.style.color = '#000';
+              "
+              onmouseout="
+                this.style.background = 'transparent';
+                this.style.color = 'var(--accent)';
+              "
+              >VIEW ANALYSIS →</a
+            >
+          </div>
+          <div class="sprint-entry">
+            <div class="sprint-date">June 2026 · Sprint 02</div>
+            <div class="sprint-title">
+              GPS LOSS FAILSAFE — Blind Land Triggered (Simulated)
+            </div>
+            <p class="sprint-body">
+              Executed a GPS loss failsafe validation test in PX4 SITL /
+              jMAVSim. Vehicle was running an autonomous mission when GPS
+              failure was injected at t=30.0s via
+              <code
+                style="
+                  font-family: var(--mono);
+                  font-size: 11px;
+                  color: var(--accent);
+                "
+                >failure gps off</code
+              >
+              command. EKF immediately lost valid position estimate, switching
+              to fake_pos dead reckoning. Flight controller transitioned from
+              nav_state=3 (Auto Mission) to nav_state=12 (Descend / Blind Land)
+              with zero reaction lag. Vehicle executed a controlled descent and
+              landed at t=72.2s. Full nav_state timeline and EKF behavior
+              extracted from
+              <code
+                style="
+                  font-family: var(--mono);
+                  font-size: 11px;
+                  color: var(--accent);
+                "
+                >log_0_2026-6-11-13-47-44.ulg</code
+              >
+              and documented via pyulog + Jupyter pipeline.
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">PX4 v1.18</span
+              ><span class="sprint-tag">QGroundControl</span
+              ><span class="sprint-tag">jMAVSim</span
+              ><span class="sprint-tag">Failsafe</span
+              ><span class="sprint-tag">GPS Loss</span
+              ><span class="sprint-tag">Blind Land</span
+              ><span class="sprint-tag">EKF</span
+              ><span class="sprint-tag">pyulog</span
+              ><span class="sprint-tag">Jupyter</span
+              ><span class="sprint-tag">nav_state</span>
+            </div>
+            <a
+              href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_failsafe_gps_loss.html"
+              target="_blank"
+              style="
+                display: inline-block;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.85rem;
+                border: 1px solid var(--accent);
+                color: var(--accent);
+                font-family: var(--mono);
+                font-size: 11px;
+                text-decoration: none;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.background = 'var(--accent)';
+                this.style.color = '#000';
+              "
+              onmouseout="
+                this.style.background = 'transparent';
+                this.style.color = 'var(--accent)';
+              "
+              >VIEW ANALYSIS →</a
+            >
+          </div>
+          <div class="sprint-entry">
+            <div class="sprint-date">June 2026 · Sprint 02</div>
+            <div class="sprint-title">
+              SIGNAL LOSS FAILSAFE — RTL Triggered Mid-Mission (Simulated)
+            </div>
+            <p class="sprint-body">
+              Executed a failsafe validation test in PX4 SITL / jMAVSim. Vehicle
+              was running an autonomous mission (42 waypoints) when a simulated
+              signal loss was introduced at t=268.5s. The flight controller
+              correctly detected the loss, transitioned from nav_state=3 (Auto
+              Mission) to nav_state=5 (RTL), and executed an autonomous
+              return-to-launch without manual input. Signal restored at
+              t=332.9s. Total flight time: 5.6 min. Failsafe trigger, RTL
+              trajectory, and nav_state transitions extracted from
+              <code
+                style="
+                  font-family: var(--mono);
+                  font-size: 11px;
+                  color: var(--accent);
+                "
+                >log_0_2026-6-6-22-21-20.ulg</code
+              >
+              and documented via pyulog + Jupyter pipeline.
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">PX4 v1.18</span
+              ><span class="sprint-tag">QGroundControl</span
+              ><span class="sprint-tag">jMAVSim</span
+              ><span class="sprint-tag">Failsafe</span
+              ><span class="sprint-tag">Signal Loss</span
+              ><span class="sprint-tag">RTL</span
+              ><span class="sprint-tag">pyulog</span
+              ><span class="sprint-tag">Jupyter</span
+              ><span class="sprint-tag">nav_state</span>
+            </div>
+            <a
+              href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_failsafe_signal_loss.html"
+              target="_blank"
+              style="
+                display: inline-block;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.85rem;
+                border: 1px solid var(--accent);
+                color: var(--accent);
+                font-family: var(--mono);
+                font-size: 11px;
+                text-decoration: none;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.background = 'var(--accent)';
+                this.style.color = '#000';
+              "
+              onmouseout="
+                this.style.background = 'transparent';
+                this.style.color = 'var(--accent)';
+              "
+              >VIEW ANALYSIS →</a
+            >
+          </div>
+          <div class="sprint-entry">
+            <div class="sprint-date">June 2026 · Sprint 02</div>
+            <div class="sprint-title">
+              GRID_01 — Photogrammetric Survey Mission (Simulated)
+            </div>
+            <p class="sprint-body">
+              Executed a full grid survey mission in PX4 SITL / jMAVSim.
+              Mission: GRID_01 — autonomous photogrammetric mapping pattern at
+              80m AGL. Total distance covered: 1,115.2m. Max speed: ~5.0 m/s.
+              Upon completing the final waypoint, the vehicle entered Safe
+              Recovery autonomously, returned to Home, and executed a precision
+              vertical landing without manual input. No GPS or compass errors
+              logged. Telemetry extracted from
+              <code
+                style="
+                  font-family: var(--mono);
+                  font-size: 11px;
+                  color: var(--accent);
+                "
+                >log_0_2026-6-7-21-00-04.ulg</code
+              >
+              and processed via pyulog + Jupyter pipeline.
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">PX4 v1.18</span
+              ><span class="sprint-tag">QGroundControl</span
+              ><span class="sprint-tag">jMAVSim</span
+              ><span class="sprint-tag">Survey / Grid</span
+              ><span class="sprint-tag">Safe Recovery</span
+              ><span class="sprint-tag">pyulog</span
+              ><span class="sprint-tag">Jupyter</span
+              ><span class="sprint-tag">80m AGL</span>
+            </div>
+            <a
+              href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_grid01_analysis.html"
+              target="_blank"
+              style="
+                display: inline-block;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.85rem;
+                border: 1px solid var(--accent);
+                color: var(--accent);
+                font-family: var(--mono);
+                font-size: 11px;
+                text-decoration: none;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.background = 'var(--accent)';
+                this.style.color = '#000';
+              "
+              onmouseout="
+                this.style.background = 'transparent';
+                this.style.color = 'var(--accent)';
+              "
+              >VIEW ANALYSIS →</a
+            >
+          </div>
+          <div class="sprint-entry">
+            <div class="sprint-date">June 2026 · Sprint 02</div>
+            <div class="sprint-title">
+              ORBITAL_01 — Dual-Pass Survey Mission (Simulated)
+            </div>
+            <p class="sprint-body">
+              Executed a dual-pass survey mission in PX4 SITL / jMAVSim — two
+              overlapping transect patterns over the same area, simulating
+              high-density photogrammetric coverage for infrastructure
+              inspection. Total flight time: 12.6 min. Mission items: 58.
+              Altitude held stable throughout both passes. Telemetry extracted
+              from
+              <code
+                style="
+                  font-family: var(--mono);
+                  font-size: 11px;
+                  color: var(--accent);
+                "
+                >log_5_2026-6-5-18-26-47.ulg</code
+              >
+              and processed via pyulog + Jupyter pipeline.
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">PX4 v1.18</span
+              ><span class="sprint-tag">QGroundControl</span
+              ><span class="sprint-tag">jMAVSim</span
+              ><span class="sprint-tag">Dual Survey</span
+              ><span class="sprint-tag">pyulog</span
+              ><span class="sprint-tag">Jupyter</span
+              ><span class="sprint-tag">12.6 min</span>
+            </div>
+            <a
+              href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint02_orbital01_analysis.html"
+              target="_blank"
+              style="
+                display: inline-block;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.85rem;
+                border: 1px solid var(--accent);
+                color: var(--accent);
+                font-family: var(--mono);
+                font-size: 11px;
+                text-decoration: none;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.background = 'var(--accent)';
+                this.style.color = '#000';
+              "
+              onmouseout="
+                this.style.background = 'transparent';
+                this.style.color = 'var(--accent)';
+              "
+              >VIEW ANALYSIS →</a
+            >
+          </div>
+          <div class="sprint-entry">
+            <div class="sprint-date">June 2026 · Sprint 01</div>
+            <div class="sprint-title">
+              PX4 SITL + jMAVSim — Full Environment Setup on macOS (arm64)
+            </div>
+            <p class="sprint-body">
+              Installed and configured PX4 SITL from source on macOS arm64.
+              Resolved Python dependency conflicts (kconfiglib, jsonschema,
+              empy, lxml) inside an isolated venv. Fixed jMAVSim Java
+              compilation error by installing OpenJDK 17 via Homebrew and
+              forcing a clean rebuild. Connected QGroundControl via UDP port
+              14550. Validated the full stack with arm → takeoff → hover → land
+              sequence. Log file generated and saved as evidence (<code
+                style="
+                  font-family: var(--mono);
+                  font-size: 11px;
+                  color: var(--accent);
+                "
+                >.ulg</code
+              >).
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">PX4 SITL</span
+              ><span class="sprint-tag">jMAVSim</span
+              ><span class="sprint-tag">macOS arm64</span
+              ><span class="sprint-tag">OpenJDK 17</span
+              ><span class="sprint-tag">MAVLink UDP</span
+              ><span class="sprint-tag">QGC</span
+              ><span class="sprint-tag">Python venv</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXPERIENCE -->
+      <section id="experience">
+        <div class="section-header">
+          <span class="section-num">06</span>
+          <h2 class="section-title">Experience</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="exp-list">
+          <div class="exp-item">
+            <div class="exp-left">
+              <div class="exp-period">2024 – Present</div>
+              <div class="exp-company">Niko's Quality Cakes</div>
+              <div class="exp-loc">Melbourne, Australia</div>
+            </div>
+            <div class="exp-right">
+              <div class="exp-role">Operations Coordinator</div>
+              <ul class="exp-bullets">
+                <li>
+                  Managed full order lifecycle in a high-volume environment —
+                  intake, scheduling, fulfilment, and quality control under
+                  tight deadlines. Same operational discipline required in UAV
+                  service delivery.
+                </li>
+                <li>
+                  Identified and fixed workflow gaps between customer intake and
+                  production execution, reducing rework and delays through
+                  process redesign.
+                </li>
+                <li>
+                  Implemented inventory tracking and reporting practices to
+                  maintain stock accuracy and production continuity.
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="exp-item">
+            <div class="exp-left">
+              <div class="exp-period">2022</div>
+              <div class="exp-company">La Italiana</div>
+              <div class="exp-loc">México</div>
+            </div>
+            <div class="exp-right">
+              <div class="exp-role">Sales & Operations</div>
+              <ul class="exp-bullets">
+                <li>
+                  Managed client relationships and order pipelines from enquiry
+                  through resolution, building documentation standards that
+                  reduced manual work.
+                </li>
+                <li>
+                  Supported sales reporting with structured data practices —
+                  early foundation for operational data work.
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="exp-item">
+            <div class="exp-left">
+              <div class="exp-period">2021</div>
+              <div class="exp-company">Matrix Fitness</div>
+              <div class="exp-loc">México</div>
+            </div>
+            <div class="exp-right">
+              <div class="exp-role">Logistics Assistant</div>
+              <ul class="exp-bullets">
+                <li>
+                  Coordinated multi-location deliveries and built reporting
+                  practices to improve stock visibility across distribution
+                  sites.
+                </li>
+                <li>
+                  Hands-on logistics execution in a fast-paced environment —
+                  understanding the real cost of poor data in physical
+                  operations.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EDUCATION -->
+      <section>
+        <div class="section-header">
+          <span class="section-num">07</span>
+          <h2 class="section-title">Education</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="edu-grid">
+          <div class="edu-item">
+            <div class="edu-degree">Bachelor of Industrial Engineering</div>
+            <div class="edu-inst">TecNM — ITSPR, México</div>
+            <div class="edu-year">Graduated 2022</div>
+            <p class="edu-note">
+              Operations systems, process engineering, logistics, quality
+              management, and industrial automation. The analytical foundation
+              for everything else.
+            </p>
+          </div>
+          <div class="edu-item">
+            <div class="edu-degree">Diploma of Information Technology</div>
+            <div class="edu-inst">Laneway Education, Melbourne</div>
+            <div class="edu-year">2026</div>
+            <p class="edu-note">
+              Full-stack development, databases, and data pipelines. Converted
+              engineering systems thinking into working software. Projects:
+              Celeritas, Tradie Leads Prospector.
+            </p>
+          </div>
+          <div class="edu-item">
+            <div class="edu-degree">Commercial UAV Pilot License</div>
+            <div class="edu-inst">Drones México</div>
+            <div class="edu-year">Targeted 2026</div>
+            <p class="edu-note">
+              Commercial UAV certification, DGAC airspace regulations, safety
+              protocols, and operational licensing for professional drone
+              services in Mexico and internationally.
+            </p>
+          </div>
+          <div class="edu-item">
+            <div class="edu-degree">Google Certifications</div>
+            <div class="edu-inst">Google / Coursera</div>
+            <div class="edu-year">Completed</div>
+            <p class="edu-note">
+              Digital Marketing & E-Commerce. UX Design Professional
+              Certificate. Supporting skills for client communication and
+              service delivery workflows.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISION -->
+      <section class="vision-section">
+        <div class="section-header">
+          <span class="section-num">08</span>
+          <h2 class="section-title">Direction</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="vision-grid">
+          <div class="vision-quote">
+            From raw flight<br />to <em>decision-ready</em><br />intelligence.
+          </div>
+          <ul class="vision-points">
+            <li>
+              <strong style="color: var(--text)">Near term:</strong> Obtain
+              commercial UAV license (Drones México, 2026). First paid
+              inspection or survey engagement. Build a portfolio of documented
+              deliverables, not just flights.
+            </li>
+            <li>
+              <strong style="color: var(--text)">Medium term:</strong>
+              Specialize in one high-value vertical — energy infrastructure
+              inspection, agricultural monitoring, or construction survey.
+              Develop standardized report templates and repeatable data
+              workflows.
+            </li>
+            <li>
+              <strong style="color: var(--text)">Long term:</strong> Independent
+              consultancy offering the full pipeline: mission design, flight,
+              data processing, and automated operational reporting. Serving
+              industrial and agricultural clients internationally.
+            </li>
+            <li>
+              <strong style="color: var(--text)">The bet:</strong> The sector is
+              commoditizing at the flight level. Value will concentrate at data
+              processing and insight delivery. That's where the Industrial
+              Engineering + software background positions this profile
+              distinctly.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact">
+        <div class="section-header">
+          <span class="section-num">10</span>
+          <h2 class="section-title">Contact</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="contact-grid">
+          <div>
+            <p class="contact-text">
+              Open to employment, contracting, and international collaboration.
+            </p>
+            <div class="contact-links">
+              <a href="mailto:jaemaciel.55@gmail.com" class="contact-link"
+                ><span class="clink-label">Email</span>jaemaciel.55@gmail.com</a
+              >
+              <a href="tel:+61411673694" class="contact-link"
+                ><span class="clink-label">Phone</span>+61 411 673 694</a
+              >
+              <a
+                href="https://linkedin.com/in/jose-escobar-cid3000"
+                class="contact-link"
+                target="_blank"
+                ><span class="clink-label">LinkedIn</span
+                >linkedin.com/in/jose-escobar-cid3000</a
+              >
+              <a href="#" class="contact-link"
+                ><span class="clink-label">Location</span>México · Open to
+                relocation</a
+              >
+            </div>
+          </div>
+          <div>
+            <div class="langs">
+              <div class="lang-block">
+                <div class="lang-name">English</div>
+                <div class="lang-level">Fluent</div>
+              </div>
+              <div
+                class="lang-block"
+                style="
+                  border-left: 1px solid var(--border);
+                  padding-left: 1.5rem;
+                "
+              >
+                <div class="lang-name">Español</div>
+                <div class="lang-level">Native</div>
+              </div>
+            </div>
+            <div class="avail-block">
+              <div class="avail-label">
+                <div class="avail-dot"></div>
+                Available Now
+              </div>
+              <p class="avail-text">
+                Open to site-based work, roster schedules, remote projects, and
+                international relocation. Targets: energy, infrastructure,
+                precision agriculture, and construction sectors.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span class="footer-copy"
+          >© 2026 Jose Escobar · UAV Operations & Data Systems</span
+        >
+        <span class="footer-sig">JE // INT'L</span>
+      </footer>
     </div>
-    <ul class="vision-points">
-      <li><strong style="color:var(--text)">Near term:</strong> Obtain commercial UAV license (Drones México, 2026). First paid inspection or survey engagement. Build a portfolio of documented deliverables, not just flights.</li>
-      <li><strong style="color:var(--text)">Medium term:</strong> Specialize in one high-value vertical — energy infrastructure inspection, agricultural monitoring, or construction survey. Develop standardized report templates and repeatable data workflows.</li>
-      <li><strong style="color:var(--text)">Long term:</strong> Independent consultancy offering the full pipeline: mission design, flight, data processing, and automated operational reporting. Serving industrial and agricultural clients internationally.</li>
-      <li><strong style="color:var(--text)">The bet:</strong> The sector is commoditizing at the flight level. Value will concentrate at data processing and insight delivery. That's where the Industrial Engineering + software background positions this profile distinctly.</li>
-    </ul>
-  </div>
-</section>
+    <!-- end #main -->
 
-<!-- SPANISH -->
-<section class="spanish-section">
-  <div class="section-header">
-    <span class="section-num">09</span>
-    <h2 class="section-title">Sobre mí</h2>
-    <div class="section-line"></div>
-  </div>
-  <p class="es-intro">Ingeniero Industrial con base técnica en sistemas de datos y automatización, en formación activa como operador comercial de drones. Mi propuesta de valor es clara: puedo diseñar la misión, volar, procesar los datos y entregar un reporte operacional estructurado — todo en un mismo perfil. Actualmente en entrenamiento con simuladores de vuelo (QGroundControl, jMAVSim) y con proceso de certificación UAV planificado para 2026 en Drones México.</p>
-  <div class="es-grid">
-    <div class="es-item">
-      <div class="es-item-title">Formación</div>
-      <div class="es-item-text">Ingeniería Industrial (TecNM), Diploma IT en Australia. Certificación piloto comercial UAV en trámite — Drones México, 2026.</div>
-    </div>
-    <div class="es-item">
-      <div class="es-item-title">Stack técnico</div>
-      <div class="es-item-text">Python, SQL, Node.js, React, MongoDB, Pandas. QGroundControl, MAVLink, SITL. Pipelines de datos en producción.</div>
-    </div>
-    <div class="es-item">
-      <div class="es-item-title">Oferta de servicio</div>
-      <div class="es-item-text">Inspección con drones, termografía (roadmap), levantamiento topográfico, y reportes de datos automatizados para sectores de energía, agricultura e infraestructura.</div>
-    </div>
-    <div class="es-item">
-      <div class="es-item-title">Disponibilidad</div>
-      <div class="es-item-text">Abierto a empleo, contracting, y colaboraciones remotas. Mexicano con experiencia internacional. Listo para moverse donde se necesite.</div>
-    </div>
-  </div>
-</section>
+    <script>
+      const bootMessages = [
+        { text: "BIOS v4.2.1 · Systems OK", type: "ok", delay: 200 },
+        { text: "Loading Industrial Engineering core", type: "ok", delay: 380 },
+        {
+          text: "Initializing Python data pipeline modules",
+          type: "ok",
+          delay: 560,
+        },
+        { text: "Mounting Node.js / React stack", type: "ok", delay: 720 },
+        { text: "Connecting MAVLink interface", type: "ok", delay: 900 },
+        { text: "QGroundControl session detected", type: "ok", delay: 1060 },
+        {
+          text: "Loading SITL simulation environment",
+          type: "ok",
+          delay: 1200,
+        },
+        { text: "UAV license module", type: "warn", delay: 1360 },
+        { text: "Thermography module", type: "warn", delay: 1480 },
+        {
+          text: "Verifying credentials: EN / ES bilingual",
+          type: "ok",
+          delay: 1620,
+        },
+        {
+          text: "Sprint log loaded · 4 sprints · 8 entries",
+          type: "ok",
+          delay: 1780,
+        },
+        { text: "Profile ready · Launching", type: "ok", delay: 1960 },
+      ];
 
-<!-- CONTACT -->
-<section id="contact">
-  <div class="section-header">
-    <span class="section-num">10</span>
-    <h2 class="section-title">Contact</h2>
-    <div class="section-line"></div>
-  </div>
-  <div class="contact-grid">
-    <div>
-      <p class="contact-text">Open to employment, contracting, and international collaboration.</p>
-      <div class="contact-links">
-        <a href="mailto:jaemaciel.55@gmail.com" class="contact-link"><span class="clink-label">Email</span>jaemaciel.55@gmail.com</a>
-        <a href="tel:+61411673694" class="contact-link"><span class="clink-label">Phone</span>+61 411 673 694</a>
-        <a href="https://linkedin.com/in/jose-escobar-cid3000" class="contact-link" target="_blank"><span class="clink-label">LinkedIn</span>linkedin.com/in/jose-escobar-cid3000</a>
-        <a href="#" class="contact-link"><span class="clink-label">Location</span>México · Open to relocation</a>
-      </div>
-    </div>
-    <div>
-      <div class="langs">
-        <div class="lang-block"><div class="lang-name">English</div><div class="lang-level">Fluent</div></div>
-        <div class="lang-block" style="border-left:1px solid var(--border);padding-left:1.5rem"><div class="lang-name">Español</div><div class="lang-level">Native</div></div>
-      </div>
-      <div class="avail-block">
-        <div class="avail-label"><div class="avail-dot"></div>Available Now</div>
-        <p class="avail-text">Open to site-based work, roster schedules, remote projects, and international relocation. Targets: energy, infrastructure, precision agriculture, and construction sectors.</p>
-      </div>
-    </div>
-  </div>
-</section>
+      const linesEl = document.getElementById("bootLines");
+      const bar = document.getElementById("bootBar");
+      const pct = document.getElementById("bootPct");
+      const boot = document.getElementById("boot");
+      const main = document.getElementById("main");
 
-<footer>
-  <span class="footer-copy">© 2026 Jose Escobar · UAV Operations & Data Systems</span>
-  <span class="footer-sig">JE // INT'L</span>
-</footer>
+      bootMessages.forEach((msg, i) => {
+        setTimeout(() => {
+          const div = document.createElement("div");
+          div.className = "boot-line " + msg.type;
+          div.textContent = "> " + msg.text;
+          div.style.opacity = "0";
+          linesEl.appendChild(div);
+          setTimeout(() => (div.style.opacity = "1"), 30);
 
-</div><!-- end #main -->
+          const progress = Math.round(((i + 1) / bootMessages.length) * 100);
+          bar.style.width = progress + "%";
+          pct.textContent = progress + "%";
+        }, msg.delay);
+      });
 
-<script>
-const bootMessages = [
-  { text: "BIOS v4.2.1 · Systems OK", type: "ok", delay: 200 },
-  { text: "Loading Industrial Engineering core", type: "ok", delay: 380 },
-  { text: "Initializing Python data pipeline modules", type: "ok", delay: 560 },
-  { text: "Mounting Node.js / React stack", type: "ok", delay: 720 },
-  { text: "Connecting MAVLink interface", type: "ok", delay: 900 },
-  { text: "QGroundControl session detected", type: "ok", delay: 1060 },
-  { text: "Loading SITL simulation environment", type: "ok", delay: 1200 },
-  { text: "UAV license module", type: "warn", delay: 1360 },
-  { text: "Thermography module", type: "warn", delay: 1480 },
-  { text: "Verifying credentials: EN / ES bilingual", type: "ok", delay: 1620 },
-  { text: "Sprint log loaded · 1 entry found", type: "ok", delay: 1780 },
-  { text: "Profile ready · Launching", type: "ok", delay: 1960 },
-];
-
-const linesEl = document.getElementById('bootLines');
-const bar = document.getElementById('bootBar');
-const pct = document.getElementById('bootPct');
-const boot = document.getElementById('boot');
-const main = document.getElementById('main');
-
-bootMessages.forEach((msg, i) => {
-  setTimeout(() => {
-    const div = document.createElement('div');
-    div.className = 'boot-line ' + msg.type;
-    div.textContent = '> ' + msg.text;
-    div.style.opacity = '0';
-    linesEl.appendChild(div);
-    setTimeout(() => div.style.opacity = '1', 30);
-
-    const progress = Math.round(((i + 1) / bootMessages.length) * 100);
-    bar.style.width = progress + '%';
-    pct.textContent = progress + '%';
-  }, msg.delay);
-});
-
-const totalTime = bootMessages[bootMessages.length - 1].delay + 600;
-setTimeout(() => {
-  boot.classList.add('fade-out');
-  setTimeout(() => {
-    boot.style.display = 'none';
-    main.classList.add('visible');
-  }, 600);
-}, totalTime);
-</script>
-</body>
+      const totalTime = bootMessages[bootMessages.length - 1].delay + 600;
+      setTimeout(() => {
+        boot.classList.add("fade-out");
+        setTimeout(() => {
+          boot.style.display = "none";
+          main.classList.add("visible");
+        }, 600);
+      }, totalTime);
+    </script>
+  </body>
 </html>
