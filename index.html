@@ -1231,6 +1231,8 @@
             <span class="chip orange">Git / GitHub</span>
             <span class="chip orange">Lean / CI</span>
             <span class="chip orange">Jira / Notion</span>
+            <span class="chip blue">OpenCV / scikit-image</span>
+            <span class="chip blue">Thermal Inspection</span>
             <span class="chip dim">Thermography · Planned</span>
             <!-- SET 2 — duplicate for seamless loop -->
             <span class="chip">Python</span>
@@ -1249,6 +1251,8 @@
             <span class="chip blue">rasterio</span>
             <span class="chip blue">WebODM</span>
             <span class="chip blue">Multispectral / NDVI</span>
+            <span class="chip blue">OpenCV / scikit-image</span>
+            <span class="chip blue">Thermal Inspection</span>
             <span class="chip orange">AWS / Docker</span>
             <span class="chip orange">Git / GitHub</span>
             <span class="chip orange">Lean / CI</span>
@@ -1491,6 +1495,16 @@
                 <div class="stack-name">Multispectral / NDVI</div>
                 <div class="stack-note">Vegetation indices</div>
               </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">OpenCV / scikit-image</div>
+                <div class="stack-note">Thermal · image analysis</div>
+              </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">Thermal Inspection</div>
+                <div class="stack-note">Hotspot · defect detection</div>
+              </div>
             </div>
           </div>
           <div>
@@ -1591,7 +1605,7 @@
       <section class="sprints-section" id="sprints">
         <div class="sprint-telem">
           <div class="telem-block">
-            <span class="val">8</span><span class="lbl">Log Entries</span>
+            <span class="val">9</span><span class="lbl">Log Entries</span>
           </div>
         </div>
         <div class="section-header">
@@ -1600,6 +1614,67 @@
           <div class="section-line"></div>
         </div>
         <div class="sprint-timeline">
+          <div class="sprint-entry">
+            <div class="sprint-date">June 2026 · Sprint 05A</div>
+            <div class="sprint-title">
+              SOLAR THERMAL INSPECTION — Hotspot Detection Pipeline
+              (InfraredSolarModules)
+            </div>
+            <p class="sprint-body">
+              Ingested the InfraredSolarModules dataset (ICLR 2020) — 20,000
+              real thermal drone images of solar panels across 12 defect
+              classes. Built a full inspection pipeline in Python: loaded and
+              parsed JSON metadata, extracted thermal statistics (mean
+              intensity, std deviation, thermal gradient) per image, and
+              computed class-level profiles across all 20,000 samples. Hotspot
+              detection implemented via 85th-percentile threshold with red
+              overlay mask. Key findings: Hot-Spot-Multi ranked highest mean
+              intensity (183.6 vs 150.9 baseline, +32.7 delta); Cracking scored
+              highest thermal gradient (8.61) — most irregular heat
+              distribution, consistent with structural fracture signature.
+              Generated 4 publication-quality outputs: class distribution chart,
+              12-class sample grid, hotspot detection panels, and final
+              dark-mode inspection map. Full pipeline documented via Jupyter
+              notebook.
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">Thermal Inspection</span
+              ><span class="sprint-tag">InfraredSolarModules</span
+              ><span class="sprint-tag">OpenCV</span
+              ><span class="sprint-tag">scikit-image</span
+              ><span class="sprint-tag">Hotspot Detection</span
+              ><span class="sprint-tag">ICLR 2020</span
+              ><span class="sprint-tag">20k Images</span
+              ><span class="sprint-tag">12 Classes</span
+              ><span class="sprint-tag">Anomaly Detection</span
+              ><span class="sprint-tag">Jupyter</span>
+            </div>
+            <a
+              href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint05a_solar_thermal_inspection.html"
+              target="_blank"
+              style="
+                display: inline-block;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.85rem;
+                border: 1px solid var(--accent);
+                color: var(--accent);
+                font-family: var(--mono);
+                font-size: 11px;
+                text-decoration: none;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.background = 'var(--accent)';
+                this.style.color = '#000';
+              "
+              onmouseout="
+                this.style.background = 'transparent';
+                this.style.color = 'var(--accent)';
+              "
+              >VIEW ANALYSIS →</a
+            >
+          </div>
           <div class="sprint-entry">
             <div class="sprint-date">June 2026 · Sprint 04</div>
             <div class="sprint-title">
@@ -2335,7 +2410,7 @@
           delay: 1620,
         },
         {
-          text: "Sprint log loaded · 4 sprints · 8 entries",
+          text: "Sprint log loaded · 5 sprints · 9 entries",
           type: "ok",
           delay: 1780,
         },
