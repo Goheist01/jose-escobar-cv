@@ -1594,7 +1594,51 @@
               ><span class="proj-tag">ETL</span>
             </div>
           </div>
-          <div class="project-card">
+          <div class="project-card featured">
+            <div class="proj-status live">Live · MVP</div>
+            <h3>AudioEngine</h3>
+            <p class="proj-desc">
+              End-to-end Python pipeline converting raw text into
+              publication-ready audiobooks: text chunking, TTS narration,
+              chapter boundary detection, MP3/MP4 assembly, and YouTube-ready
+              metadata generated automatically. Same staged-pipeline
+              architecture — ingest → process → export → publish — reused
+              across the UAV telemetry and spatial data workflows above.
+            </p>
+            <div class="proj-stack">
+              <span class="proj-tag">Python</span
+              ><span class="proj-tag">ElevenLabs API</span
+              ><span class="proj-tag">ffmpeg</span
+              ><span class="proj-tag">Pipeline</span>
+            </div>
+            <a
+              href="https://github.com/Goheist01/AudioEngine"
+              target="_blank"
+              style="
+                display: inline-block;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.85rem;
+                border: 1px solid var(--accent);
+                color: var(--accent);
+                font-family: var(--mono);
+                font-size: 11px;
+                text-decoration: none;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.background = 'var(--accent)';
+                this.style.color = '#000';
+              "
+              onmouseout="
+                this.style.background = 'transparent';
+                this.style.color = 'var(--accent)';
+              "
+              >VIEW REPO →</a
+            >
+          </div>
+       
+          <div class="project-card featured">
             <div class="proj-status sim">Simulation · Active</div>
             <h3>UAV Mission Intelligence</h3>
             <p class="proj-desc">
@@ -1609,7 +1653,7 @@
               ><span class="proj-tag">MAVLink</span
               ><span class="proj-tag">SITL</span>
             </div>
-          </div>
+          </div> </div>
         </div>
       </section>
 
