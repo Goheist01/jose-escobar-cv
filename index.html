@@ -1202,10 +1202,16 @@
         </div>
         <h1>Jose<br /><em>Escobar</em></h1>
         <p class="hero-pitch">
-          I design missions, process the data, and deliver structured
-          operational reports — <strong>end-to-end, in-house.</strong><br />
-          Industrial Engineering foundation. Full-stack development. UAV
-          telemetry and simulation in active training.
+          <strong
+            >I design, process, and deliver structured operational reports —
+            end-to-end.</strong
+          ><br />
+          With an Industrial Engineering foundation and full-stack development
+          skills, I build automated pipelines that turn raw UAV telemetry and
+          imagery into reliable business intelligence. Expert in multispectral,
+          thermal, and 3D LiDAR data processing (laspy, point cloud
+          classification), as well as PX4/SITL environments for mission
+          validation.
         </p>
         <div class="hero-sub">México · Open to international work</div>
         <div class="chips-carousel">
@@ -1227,6 +1233,7 @@
             <span class="chip blue">rasterio</span>
             <span class="chip blue">WebODM</span>
             <span class="chip blue">Multispectral / NDVI</span>
+            <span class="chip blue">LiDAR / Point Cloud</span>
             <span class="chip orange">AWS / Docker</span>
             <span class="chip orange">Git / GitHub</span>
             <span class="chip orange">Lean / CI</span>
@@ -1251,6 +1258,7 @@
             <span class="chip blue">rasterio</span>
             <span class="chip blue">WebODM</span>
             <span class="chip blue">Multispectral / NDVI</span>
+            <span class="chip blue">LiDAR / Point Cloud</span>
             <span class="chip blue">OpenCV / scikit-image</span>
             <span class="chip blue">Thermal Inspection</span>
             <span class="chip orange">AWS / Docker</span>
@@ -1324,11 +1332,10 @@
           </div>
         </div>
         <p class="value-note">
-          <strong>The differentiator:</strong> Most drone operators deliver raw
-          footage. Most data engineers don't fly. I'm building the capacity to
-          own the full pipeline — from airframe to actionable insight — which
-          means fewer handoffs, lower cost, and faster turnaround for the
-          client.
+          <strong>The differentiator:</strong> Drone operators deliver raw
+          footage. Data engineers don't fly. I aim to own the full pipeline —
+          from airframe to actionable insight — which means fewer handoffs,
+          lower cost, and faster turnaround for the client.
         </p>
       </section>
 
@@ -1370,18 +1377,18 @@
             </p>
             <span class="cap-status active">Production Ready</span>
           </div>
-          <div class="cap-card blue-acc">
-            <div class="cap-label blue">In Training</div>
+          <div class="cap-card">
+            <div class="cap-label">Active</div>
             <h3>Mission Planning & Simulation</h3>
             <p>
               Autonomous flight planning in QGroundControl. Simulation via SITL
               / jMAVSim. MAVLink protocol, telemetry analysis, and pre-flight
               systems validation. Active sprint training documented publicly.
             </p>
-            <span class="cap-status training">Certification Targeted 2026</span>
+            <span class="cap-status active">Production Ready</span>
           </div>
           <div class="cap-card blue-acc">
-            <div class="cap-label blue">Roadmap</div>
+            <div class="cap-label blue">Active</div>
             <h3>Thermography & Infrastructure Inspection</h3>
             <p>
               Aerial thermal analysis for industrial asset monitoring, energy
@@ -1389,17 +1396,17 @@
               interpretation. Planned as second certification phase post-pilot
               license.
             </p>
-            <span class="cap-status roadmap">Post-Licensing</span>
+            <span class="cap-status active">Production Ready</span>
           </div>
           <div class="cap-card blue-acc">
-            <div class="cap-label blue">Roadmap</div>
+            <div class="cap-label blue">Active</div>
             <h3>Photogrammetry & Site Survey</h3>
             <p>
               Topographic survey, orthomosaic generation, and volumetric
               analysis for construction, infrastructure, and precision
               agriculture. Built on existing data processing foundations.
             </p>
-            <span class="cap-status roadmap">Post-Licensing</span>
+            <span class="cap-status active">Production Ready</span>
           </div>
         </div>
       </section>
@@ -1505,6 +1512,11 @@
                 <div class="stack-name">Thermal Inspection</div>
                 <div class="stack-note">Hotspot · defect detection</div>
               </div>
+              <div class="stack-item">
+                <div class="stack-dot blue"></div>
+                <div class="stack-name">laspy / LiDAR</div>
+                <div class="stack-note">Point cloud · DTM/DSM</div>
+              </div>
             </div>
           </div>
           <div>
@@ -1605,7 +1617,7 @@
       <section class="sprints-section" id="sprints">
         <div class="sprint-telem">
           <div class="telem-block">
-            <span class="val">9</span><span class="lbl">Log Entries</span>
+            <span class="val">10</span><span class="lbl">Log Entries</span>
           </div>
         </div>
         <div class="section-header">
@@ -1615,7 +1627,67 @@
         </div>
         <div class="sprint-timeline">
           <div class="sprint-entry">
-            <div class="sprint-date">June 2026 · Sprint 05A</div>
+            <div class="sprint-date">June 2026 · Sprint 06</div>
+            <div class="sprint-title">
+              LIDAR POINT CLOUD — DTM/DSM Generation &amp; Structure Detection
+              (Utah State Capitol, USGS/OpenTopography)
+            </div>
+            <p class="sprint-body">
+              Processed a real classified LiDAR point cloud (2,515,216 points,
+              EPSG:26912) sourced from USGS / OpenTopography. Separated ground
+              (836,431 pts) from non-ground returns, then rasterized both to
+              1m/px grids via binned statistics: DTM (mean ground elevation) and
+              DSM (max surface elevation). Filled DTM occlusion gaps beneath the
+              structure footprint via nearest-neighbor interpolation, then
+              computed a normalized height model (DSM − DTM) to isolate
+              above-ground structures independent of terrain slope.
+              Dual-threshold structure detection at 2m (vegetation + structures,
+              3.08 ha) and 10m (building-scale only, 1.64 ha) — capturing the
+              Capitol dome at 75.9m height above local terrain. Exported DTM,
+              DSM, and height-model as georeferenced GeoTIFFs. Same
+              DSM/DTM-differencing method transfers directly to mining stockpile
+              volumetrics and transmission-corridor clearance analysis.
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">LiDAR</span
+              ><span class="sprint-tag">Point Cloud</span
+              ><span class="sprint-tag">laspy</span
+              ><span class="sprint-tag">DTM/DSM</span
+              ><span class="sprint-tag">USGS/OpenTopography</span
+              ><span class="sprint-tag">Structure Detection</span
+              ><span class="sprint-tag">GeoTIFF</span
+              ><span class="sprint-tag">EPSG:26912</span
+              ><span class="sprint-tag">2.5M Points</span
+              ><span class="sprint-tag">Jupyter</span>
+            </div>
+            <a
+              href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint06_lidar_structure_detection.html"
+              target="_blank"
+              style="
+                display: inline-block;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.85rem;
+                border: 1px solid var(--accent);
+                color: var(--accent);
+                font-family: var(--mono);
+                font-size: 11px;
+                text-decoration: none;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              "
+              onmouseover="
+                this.style.background = 'var(--accent)';
+                this.style.color = '#000';
+              "
+              onmouseout="
+                this.style.background = 'transparent';
+                this.style.color = 'var(--accent)';
+              "
+              >VIEW ANALYSIS →</a
+            >
+          </div>
+          <div class="sprint-entry">
+            <div class="sprint-date">June 2026 · Sprint 05</div>
             <div class="sprint-title">
               SOLAR THERMAL INSPECTION — Hotspot Detection Pipeline
               (InfraredSolarModules)
@@ -2249,12 +2321,12 @@
           </div>
           <div class="edu-item">
             <div class="edu-degree">Commercial UAV Pilot License</div>
-            <div class="edu-inst">Drones México</div>
+            <div class="edu-inst">Cramex</div>
             <div class="edu-year">Targeted 2026</div>
             <p class="edu-note">
               Commercial UAV certification, DGAC airspace regulations, safety
               protocols, and operational licensing for professional drone
-              services in Mexico and internationally.
+              services in Mexico.
             </p>
           </div>
           <div class="edu-item">
@@ -2283,17 +2355,16 @@
           </div>
           <ul class="vision-points">
             <li>
-              <strong style="color: var(--text)">Near term:</strong> Obtain
-              commercial UAV license (Drones México, 2026). First paid
-              inspection or survey engagement. Build a portfolio of documented
-              deliverables, not just flights.
+              <strong style="color: var(--text)">Near term:</strong>
+              Build data processing portfolio of documented deliverables across
+              thermal, multispectral, and LiDAR pipelines — solar, agriculture,
+              mining, and infrastructure clients., not just flights. Commercial
+              UAV license (Cramex, in progress) pursued in parallel
             </li>
             <li>
               <strong style="color: var(--text)">Medium term:</strong>
-              Specialize in one high-value vertical — energy infrastructure
-              inspection, agricultural monitoring, or construction survey.
-              Develop standardized report templates and repeatable data
-              workflows.
+              Specialize in high-value vertical sectors. Develop standardized
+              report templates and repeatable data workflows.
             </li>
             <li>
               <strong style="color: var(--text)">Long term:</strong> Independent
@@ -2410,7 +2481,7 @@
           delay: 1620,
         },
         {
-          text: "Sprint log loaded · 5 sprints · 9 entries",
+          text: "Sprint log loaded · 6 sprints · 10 entries",
           type: "ok",
           delay: 1780,
         },
