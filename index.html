@@ -1240,7 +1240,11 @@
             <span class="chip orange">Jira / Notion</span>
             <span class="chip blue">OpenCV / scikit-image</span>
             <span class="chip blue">Thermal Inspection</span>
-            <span class="chip dim">Thermography · Planned</span>
+            <span class="chip blue">Google Earth Engine</span>
+            <span class="chip blue">GEE Python API</span>
+            <span class="chip blue">Land Cover Classification</span>
+            <span class="chip blue">Random Forest</span>
+            <span class="chip blue">geemap</span>
             <!-- SET 2 — duplicate for seamless loop -->
             <span class="chip">Python</span>
             <span class="chip">SQL / MongoDB</span>
@@ -1261,11 +1265,15 @@
             <span class="chip blue">LiDAR / Point Cloud</span>
             <span class="chip blue">OpenCV / scikit-image</span>
             <span class="chip blue">Thermal Inspection</span>
+            <span class="chip blue">Google Earth Engine</span>
+            <span class="chip blue">GEE Python API</span>
+            <span class="chip blue">Land Cover Classification</span>
+            <span class="chip blue">Random Forest</span>
+            <span class="chip blue">geemap</span>
             <span class="chip orange">AWS / Docker</span>
             <span class="chip orange">Git / GitHub</span>
             <span class="chip orange">Lean / CI</span>
             <span class="chip orange">Jira / Notion</span>
-            <span class="chip dim">Thermography · Planned</span>
           </div>
         </div>
         <div class="hero-actions">
@@ -1276,7 +1284,7 @@
         </div>
         <div class="hero-telemetry">
           <div class="telem-block">
-            <span class="val">3+</span><span class="lbl">Systems Shipped</span>
+            <span class="val">5+</span><span class="lbl">Systems Shipped</span>
           </div>
           <div class="telem-block">
             <span class="val">2</span><span class="lbl">Degrees</span>
@@ -1517,6 +1525,8 @@
                 <div class="stack-name">laspy / LiDAR</div>
                 <div class="stack-note">Point cloud · DTM/DSM</div>
               </div>
+              <div class="stack-item"><div class="stack-dot blue"></div><div class="stack-name">Google Earth Engine / API</div><div class="stack-note">Satellite imagery · cloud classification</div></div>
+<div class="stack-item"><div class="stack-dot blue"></div><div class="stack-name">geemap</div><div class="stack-note">Interactive mapping · GEE Python</div></div>
             </div>
           </div>
           <div>
@@ -1661,7 +1671,7 @@
       <section class="sprints-section" id="sprints">
         <div class="sprint-telem">
           <div class="telem-block">
-            <span class="val">10</span><span class="lbl">Log Entries</span>
+            <span class="val">11</span><span class="lbl">Log Entries</span>
           </div>
         </div>
         <div class="section-header">
@@ -1670,6 +1680,28 @@
           <div class="section-line"></div>
         </div>
         <div class="sprint-timeline">
+          <div class="sprint-entry">
+  <div class="sprint-date">June 2026 · Sprint 07</div>
+  <div class="sprint-title">GEE Land Cover Classification — Sentinel-2 · Random Forest · Jalisco, México</div>
+  <p class="sprint-body">Queried 462 real Sentinel-2 L2A images over Jalisco, México via Google Earth Engine Python API. Built a median composite from scenes with less than 10% cloud cover across 6 spectral bands (Blue, Green, Red, NIR, SWIR1, SWIR2). Defined 5 land cover classes — Water, Forest, Agriculture, Urban, Bare Soil — with 25 georeferenced training points over known locations (Lago de Chapala, Guadalajara, Sierra Madre, Los Altos, northern dry zones). Trained a Random Forest classifier (100 trees) directly on GEE infrastructure. Classification map confirms correct spatial distribution: Lago de Chapala isolated as water, Guadalajara metropolitan area as urban, Sierra Madre footprint as forest. Exported classified GeoTIFF and RGB composite to Google Drive. Interactive map rendered via geemap/ipyleaflet.</p>
+  <div class="sprint-tags">
+    <span class="sprint-tag">Google Earth Engine</span>
+    <span class="sprint-tag">Sentinel-2</span>
+    <span class="sprint-tag">Random Forest</span>
+    <span class="sprint-tag">Land Cover</span>
+    <span class="sprint-tag">GEE Python API</span>
+    <span class="sprint-tag">geemap</span>
+    <span class="sprint-tag">GeoTIFF</span>
+    <span class="sprint-tag">Supervised Classification</span>
+  </div>
+  <a href="https://goheist01.github.io/uav-mission-intelligence/outputs/sprint07_gee_land_cover.html"
+     target="_blank"
+     style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;"
+     onmouseover="this.style.background='var(--accent)';this.style.color='#000';"
+     onmouseout="this.style.background='transparent';this.style.color='var(--accent)';">
+    VIEW ANALYSIS →
+  </a>
+</div>
           <div class="sprint-entry">
             <div class="sprint-date">June 2026 · Sprint 06</div>
             <div class="sprint-title">
@@ -2525,7 +2557,7 @@
           delay: 1620,
         },
         {
-          text: "Sprint log loaded · 6 sprints · 10 entries",
+          text: "Sprint log loaded · 7 sprints · 11 entries",
           type: "ok",
           delay: 1780,
         },
