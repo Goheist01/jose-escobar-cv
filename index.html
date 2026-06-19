@@ -1339,12 +1339,131 @@
             </p>
           </div>
         </div>
+        <!-- ============================================================
+  SPRINT CAROUSEL — paste this entire block into jose-escobar-cv/index.html
+  Location: immediately BEFORE the "The differentiator:" paragraph in section 01
+  ============================================================ -->
+
+<div style="position:relative;width:100%;padding:2.5rem 0 1.5rem;overflow:hidden;">
+
+  <p style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;color:var(--accent);opacity:0.45;text-align:center;margin:0 0 1.5rem;text-transform:uppercase;">
+    // pipeline outputs &middot; click to open analysis
+  </p>
+
+  <div id="sc-stage" style="position:relative;height:240px;overflow:hidden;
+    -webkit-mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0%,black 12%,black 88%,transparent 100%);">
+  </div>
+
+  <p id="sc-cap" style="font-family:var(--mono);font-size:10px;color:var(--accent);text-align:center;
+    margin:1.2rem 0 0;min-height:1.1rem;letter-spacing:0.06em;transition:opacity 0.3s;opacity:0;">
+  </p>
+
+  <div id="sc-dots" style="display:flex;justify-content:center;align-items:center;gap:6px;margin:0.8rem 0 1.5rem;"></div>
+
+</div>
+
+<script>
+(function () {
+  var OUT = 'https://raw.githubusercontent.com/Goheist01/uav-mission-intelligence/main/outputs/';
+  var DAT = 'https://raw.githubusercontent.com/Goheist01/uav-mission-intelligence/main/data/';
+  var NB  = 'https://goheist01.github.io/uav-mission-intelligence/notebooks/';
+  var OU  = 'https://goheist01.github.io/uav-mission-intelligence/outputs/';
+
+  var S = [
+    { f: OUT+'sprint07_land_cover_classification.png', l: OU+'sprint07_gee_land_cover.html',              c: 'S07 · Land cover classification · GEE random forest · Jalisco' },
+    { f: DAT+'lidar_pointcloud_topdown.png',           l: NB+'sprint06_lidar_structure_detection.html',   c: 'S06 · LiDAR point cloud top-down · 2.5M points · EPSG:26912' },
+    { f: OUT+'sprint05a_final_map.png',                l: NB+'sprint05a_solar_thermal_inspection.html',   c: 'S05A · Solar thermal inspection map · 20K images · 12 defect classes' },
+    { f: DAT+'lidar_dtm_dsm.png',                     l: NB+'sprint06_lidar_structure_detection.html',   c: 'S06 · DTM / DSM elevation model · Utah Capitol · 1 m/px' },
+    { f: OUT+'sprint05a_hotspot_detection.png',        l: NB+'sprint05a_solar_thermal_inspection.html',   c: 'S05A · Hotspot detection · 85th-percentile thermal threshold' },
+    { f: DAT+'lidar_structure_detection.png',          l: NB+'sprint06_lidar_structure_detection.html',   c: 'S06 · Structure detection · dual threshold · 1.64 ha footprint' },
+    { f: DAT+'sprint04_multispectral_jalisco.png',     l: NB+'sprint04_multispectral_agriculture.html',   c: 'S04 · Multispectral · Sentinel-2 Jalisco · NDVI / NDWI / NDRE / SAVI' },
+    { f: DAT+'aukerman_ndvi.png',                      l: NB+'sprint03_orthomosaic_aukerman.html',        c: 'S03 · NDVI · 73.4% healthy vegetation · georeferenced orthomosaic' },
+    { f: DAT+'aukerman_orthomosaic.png',               l: NB+'sprint03_orthomosaic_aukerman.html',        c: 'S03 · Orthomosaic · 77 images · 0.08 m/px · 4.64 ha' },
+  ];
+
+  var cur = 0, timer;
+  var stage = document.getElementById('sc-stage');
+  var cap   = document.getElementById('sc-cap');
+  var dots  = document.getElementById('sc-dots');
+  var N = S.length;
+  var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#00FF88';
+
+  var cards = S.map(function (s) {
+    var a = document.createElement('a');
+    a.href = s.l; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.style.cssText = 'position:absolute;left:50%;top:50%;display:block;text-decoration:none;' +
+      'transition:transform 0.52s cubic-bezier(0.25,0.46,0.45,0.94),opacity 0.52s ease;opacity:0;';
+    var img = document.createElement('img');
+    img.src = s.f; img.alt = s.c;
+    img.style.cssText = 'display:block;width:370px;height:215px;object-fit:cover;' +
+      'border:1px solid transparent;transition:border-color 0.4s;';
+    a.appendChild(img);
+    stage.appendChild(a);
+    return { a: a, img: img };
+  });
+
+  S.forEach(function (_, i) {
+    var d = document.createElement('div');
+    d.style.cssText = 'height:3px;width:3px;border-radius:2px;background:rgba(255,255,255,0.15);' +
+      'transition:all 0.35s;cursor:pointer;';
+    d.onclick = function () { goTo(i); };
+    dots.appendChild(d);
+  });
+
+  function pos(i) {
+    var d = ((i - cur) % N + N) % N;
+    if (d === 0)     return  0;
+    if (d === 1)     return  1;
+    if (d === N - 1) return -1;
+    if (d === 2)     return  2;
+    if (d === N - 2) return -2;
+    return 9;
+  }
+
+  function render() {
+    cards.forEach(function (c, i) {
+      var p = pos(i), tx = 0, sc = 1, op = 0, pe = 'none', zi = 1;
+      if      (p ===  0) { tx =    0; sc = 1.00; op = 1.00; pe = 'auto'; zi = 10; }
+      else if (p ===  1) { tx =  305; sc = 0.74; op = 0.55; zi = 5; }
+      else if (p === -1) { tx = -305; sc = 0.74; op = 0.55; zi = 5; }
+      else if (p ===  2) { tx =  490; sc = 0.52; op = 0;    zi = 1; }
+      else if (p === -2) { tx = -490; sc = 0.52; op = 0;    zi = 1; }
+      c.a.style.transform    = 'translateX(calc(-50% + ' + tx + 'px)) translateY(-50%) scale(' + sc + ')';
+      c.a.style.opacity      = op;
+      c.a.style.pointerEvents = pe;
+      c.a.style.zIndex       = zi;
+      c.img.style.borderColor = (p === 0) ? 'rgba(0,255,136,0.6)' : 'rgba(255,255,255,0.08)';
+    });
+    cap.textContent  = S[cur].c;
+    cap.style.opacity = '1';
+    var ds = dots.querySelectorAll('div');
+    ds.forEach(function (d, i) {
+      d.style.background = (i === cur) ? accent : 'rgba(255,255,255,0.15)';
+      d.style.width      = (i === cur) ? '18px' : '3px';
+    });
+  }
+
+  function goTo(idx) {
+    cur = ((idx % N) + N) % N;
+    render();
+    clearInterval(timer);
+    timer = setInterval(function () { goTo(cur + 1); }, 5000);
+  }
+
+  render();
+  timer = setInterval(function () { goTo(cur + 1); }, 5000);
+}());
+</script>
+
+<!-- ============================================================ END CAROUSEL ============================================================ -->
         <p class="value-note">
           <strong>The differentiator:</strong> Drone operators deliver raw
           footage. Data engineers don't fly. I aim to own the full pipeline —
           from airframe to actionable insight — which means fewer handoffs,
           lower cost, and faster turnaround for the client.
         </p>
+      
       </section>
 
       <!-- CAPABILITIES -->
