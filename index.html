@@ -1161,6 +1161,31 @@
           display: none;
         }
       }
+  /* Accordion */
+.sprint-collapse {
+  display: none;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+}
+.sprint-indicator {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  opacity: 0.55;
+  margin-left: 0.6rem;
+}
+.sprint-entry.open .sprint-indicator {
+  opacity: 1;
+}
+.sprint-date,
+.sprint-title {
+  cursor: pointer;
+}
+.sprint-title:hover {
+  color: var(--accent);
+  transition: color 0.2s;
+}
     </style>
   </head>
   <body>
@@ -1784,7 +1809,7 @@ below.
               ><span class="proj-tag">WebODM</span
               ><span class="proj-tag">LiDAR</span
               ><span class="proj-tag">SITL</span>
-              ><span class="proj-tag">Sentinel-2</span>
+              <span class="proj-tag">Sentinel-2</span>
             </div>
           </div> </div>
         </div>
@@ -1885,6 +1910,27 @@ below.
               >VIEW ANALYSIS →</a
             >
           </div>
+          <div class="sprint-entry">
+  <div class="sprint-date">June 2026 · Sprint 05B</div>
+  <div class="sprint-title">Solar Thermal Inspection Triage — Severity Scoring Dashboard · InfraredSolarModules</div>
+  <p class="sprint-body">Extended Sprint 05A toward a decision-ready triage tool. Built a per-panel severity scoring formula combining four signals: temperature delta above healthy baseline, hotspot area percentage, thermal gradient irregularity, and a domain-reasoned defect-class risk weight — output is a 0–100 severity score per image, bucketed into Critical / Moderate / Monitor / Healthy tiers. Applied across all 20,000 images: 403 Critical, 3,700 Moderate, 5,897 Monitor, 10,000 Healthy. Exported results to JSON and built a static interactive dashboard — ironbow thermal colorization, live filtering by tier and defect class, paginated card grid, detail modal with full stats on click, and CSV export of any active filter. Honest scope: severity classification demonstrated on a public benchmark dataset (InfraredSolarModules · ICLR 2020). Spatial/array-position layer pending real client-provided GPS or flight metadata — architecture for this is planned in the PostGIS sprint.</p>
+  <div class="sprint-tags">
+    <span class="sprint-tag">Python</span>
+    <span class="sprint-tag">pandas</span>
+    <span class="sprint-tag">NumPy</span>
+    <span class="sprint-tag">OpenCV</span>
+    <span class="sprint-tag">scikit-image</span>
+    <span class="sprint-tag">HTML / CSS / JS</span>
+    <span class="sprint-tag">InfraredSolarModules</span>
+    <span class="sprint-tag">Severity Scoring</span>
+    <span class="sprint-tag">Ironbow Colorization</span>
+  </div>
+  <a href="https://goheist01.github.io/uav-mission-intelligence/outputs/dashboard/"
+     target="_blank"
+     style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;"
+     onmouseover="this.style.background='var(--accent)';this.style.color='#000'"
+     onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">LAUNCH DASHBOARD →</a>
+</div>
           <div class="sprint-entry">
             <div class="sprint-date">June 2026 · Sprint 05</div>
             <div class="sprint-title">
@@ -2680,7 +2726,7 @@ below.
           delay: 1620,
         },
         {
-          text: "Sprint log loaded · 7 sprints · 11 entries",
+          text: "Sprint log loaded · 7 sprints · 12 entries",
           type: "ok",
           delay: 1780,
         },
@@ -2717,5 +2763,64 @@ below.
         }, 600);
       }, totalTime);
     </script>
+    <script>
+(function () {
+  document.querySelectorAll('.sprint-entry').forEach(function (entry) {
+    var date  = entry.querySelector('.sprint-date');
+    var title = entry.querySelector('.sprint-title');
+    if (!date || !title) return;
+
+    var indicator = document.createElement('span');
+    indicator.className = 'sprint-indicator';
+    indicator.textContent = '[+]';
+    date.appendChild(indicator);
+
+    var collapse = document.createElement('div');
+    collapse.className = 'sprint-collapse';
+    var children = Array.prototype.slice.call(entry.children);
+    var pastTitle = false;
+    children.forEach(function (child) {
+      if (pastTitle) collapse.appendChild(child);
+      if (child === title) pastTitle = true;
+    });
+    entry.appendChild(collapse);
+
+    function toggle(e) {
+      if (e.target.tagName === 'A') return;
+      var isOpen = entry.classList.toggle('open');
+      indicator.textContent = isOpen ? '[-]' : '[+]';
+
+      if (isOpen) {
+        // Snap height open instantly, then fade content in slowly
+        collapse.style.transition = 'none';
+        collapse.style.display = 'block';
+        collapse.style.maxHeight = collapse.scrollHeight + 'px';
+        collapse.style.opacity = '0';
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            collapse.style.transition = 'opacity 0.65s ease';
+            collapse.style.opacity = '1';
+          });
+        });
+      } else {
+        // Fade out + shrink height simultaneously — feels physical
+        collapse.style.transition = 'opacity 0.45s ease, max-height 0.48s ease';
+        collapse.style.maxHeight = collapse.scrollHeight + 'px';
+        requestAnimationFrame(function () {
+          collapse.style.opacity = '0';
+          collapse.style.maxHeight = '0';
+        });
+        setTimeout(function () {
+          collapse.style.display = 'none';
+          collapse.style.transition = 'none';
+        }, 500);
+      }
+    }
+
+    date.addEventListener('click', toggle);
+    title.addEventListener('click', toggle);
+  });
+}());
+</script>
   </body>
 </html>
