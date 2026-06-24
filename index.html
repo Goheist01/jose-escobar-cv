@@ -1821,7 +1821,7 @@ below.
       <section class="sprints-section" id="sprints">
         <div class="sprint-telem">
           <div class="telem-block">
-            <span class="val">11</span><span class="lbl">Log Entries</span>
+            <span class="val">12</span><span class="lbl">Log Entries</span>
           </div>
         </div>
         <div class="section-header">
@@ -1830,6 +1830,26 @@ below.
           <div class="section-line"></div>
         </div>
         <div class="sprint-timeline">
+          <div class="sprint-entry">
+  <div class="sprint-date">June 2026 · Sprint 08</div>
+  <div class="sprint-title">Solar Panel Fault Detection — YOLOv8n Object Detection · 7 Fault Classes</div>
+  <p class="sprint-body">Fine-tuned YOLOv8n on the Solar Panel Fault Detection dataset (2,763 RGB images, 7 fault classes: Bird Drop, Defective, Dust, Dusty, Non Defective, Physical Damage, Snow). Transfer learning from COCO-pretrained weights on Tesla T4 GPU via Google Colab — 50 epochs, batch 16, imgsz 640. Overall mAP50: 0.321. Strongest class: Defective (0.640 mAP50). Weakest: Physical Damage (0.097) and Bird Drop (0.149) — attributed to high intra-class visual variability and limited per-class sample count. Training curves confirm clean convergence with no overfitting. Inference demonstrated on held-out test set with per-detection confidence scores. This sprint establishes the object localization layer missing from Sprint 05B — detecting and bounding individual panels in RGB imagery, complementing the thermal severity scoring pipeline.</p>
+  <div class="sprint-tags">
+    <span class="sprint-tag">Python</span>
+    <span class="sprint-tag">YOLOv8</span>
+    <span class="sprint-tag">PyTorch</span>
+    <span class="sprint-tag">Transfer Learning</span>
+    <span class="sprint-tag">Object Detection</span>
+    <span class="sprint-tag">Google Colab</span>
+    <span class="sprint-tag">Roboflow</span>
+    <span class="sprint-tag">Computer Vision</span>
+  </div>
+  <a href="https://goheist01.github.io/uav-mission-intelligence/notebooks/sprint08_solar_panel_detection.html"
+     target="_blank"
+     style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;"
+     onmouseover="this.style.background='var(--accent)';this.style.color='#000'"
+     onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">VIEW ANALYSIS →</a>
+</div>
           <div class="sprint-entry">
   <div class="sprint-date">June 2026 · Sprint 07</div>
   <div class="sprint-title">GEE Land Cover Classification — Sentinel-2 · Random Forest · Jalisco, México</div>
