@@ -1314,7 +1314,7 @@
         </div>
         <div class="hero-telemetry">
           <div class="telem-block">
-            <span class="val">9</span><span class="lbl">Sprints Live</span>
+            <span class="val">10</span><span class="lbl">Sprints Live</span>
           </div>
           <div class="telem-block">
             <span class="val">3</span><span class="lbl">Live Platforms</span>
@@ -1957,26 +1957,27 @@
             </div>
           </div>
           <div class="project-card featured">
-            <div class="proj-status sim">Live Platform · PostGIS</div>
-            <h3>Amazon Deforestation Intelligence Platform</h3>
+            <div class="proj-status sim">
+              Live Platform · Sentinel-2 · PostGIS
+            </div>
+            <h3>Mekong Delta Agricultural Intelligence Platform</h3>
             <p class="proj-desc">
-              Live geospatial web application backed by a real PostGIS database
-              on Supabase. 1,121 Hansen GFC real loss events, drivers classified
-              from MODIS MCD12Q1 post-loss land cover, 370 WDPA registered
-              protected area boundaries. 66 violations detected via ST_Within()
-              spatial intersection. Leaflet.js frontend with live filters, click
-              inspection, and year/driver controls. Every data point verifiable
-              against original public sources.
+              Live agricultural monitoring platform — 5 Sentinel-2 spectral band
+              toggles (True Color, NDVI, NDWI, NDRE, False Color NIR) served as
+              23,245 XYZ tiles from GitHub Pages. 499 parcels and 4,981 spectral
+              observations from a live PostGIS database on Supabase. Temporal
+              NDVI/NDWI chart per parcel click. Rice paddy flood cycle confirmed
+              in NDWI data across 4 rice seasons. COG files on AWS S3.
             </p>
             <div class="proj-stack">
-              <span class="proj-tag">PostGIS</span
+              <span class="proj-tag">Sentinel-2</span
+              ><span class="proj-tag">PostGIS</span
               ><span class="proj-tag">Supabase</span
-              ><span class="proj-tag">Leaflet.js</span
-              ><span class="proj-tag">Hansen GFC</span>
-              <span class="proj-tag">WDPA</span>
+              ><span class="proj-tag">AWS S3</span>
+              <span class="proj-tag">gdal2tiles</span>
             </div>
             <a
-              href="https://goheist01.github.io/uav-mission-intelligence/outputs/amazon_platform.html"
+              href="https://goheist01.github.io/uav-mission-intelligence/outputs/mekong_platform.html"
               target="_blank"
               style="
                 display: inline-block;
