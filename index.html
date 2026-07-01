@@ -1464,6 +1464,11 @@
 
             var S = [
               {
+                f: OUT + "sprint10_mekong_agriculture.png",
+                l: "https://goheist01.github.io/uav-mission-intelligence/outputs/mekong_platform.html",
+                c: "S10 · Mekong Delta Agricultural Intelligence Platform · Sentinel-2 · XYZ Tiles · PostGIS · 499 parcels",
+              },
+              {
                 f: OUT + "sprint09_amazon_deforestation.png",
                 l: "https://goheist01.github.io/uav-mission-intelligence/outputs/amazon_platform.html",
                 c: "S09 · Amazon Deforestation Intelligence Platform · PostGIS · Supabase · 1,121 real loss events",
@@ -2021,7 +2026,7 @@
       <section class="sprints-section" id="sprints">
         <div class="sprint-telem">
           <div class="telem-block">
-            <span class="val">14</span><span class="lbl">Log Entries</span>
+            <span class="val">15</span><span class="lbl">Log Entries</span>
           </div>
         </div>
         <div class="section-header">
@@ -2030,6 +2035,54 @@
           <div class="section-line"></div>
         </div>
         <div class="sprint-timeline">
+          <div class="sprint-entry">
+            <div class="sprint-date">July 2026 · Sprint 10</div>
+            <div class="sprint-title">
+              Mekong Delta Agricultural Intelligence Platform — Sentinel-2 · XYZ Tiles · PostGIS · Supabase · Leaflet
+            </div>
+            <p class="sprint-body">
+              Live agricultural monitoring platform for the Mekong Delta — one of
+              the most intensively farmed river systems on earth. Exported 5
+              Sentinel-2 SR Harmonized composites from Google Earth Engine (Nov
+              2022–Apr 2023) with SCL cloud masking and fallback composite:
+              True Color, NDVI, NDWI, NDRE, False Color NIR. Converted to Cloud
+              Optimized GeoTIFF via GDAL, then to 23,245 XYZ tiles (zoom 7–13,
+              JPEG) using gdal2tiles — served from GitHub Pages for instant
+              band switching with no download wait. COG files hosted on AWS S3
+              (us-east-1). PostGIS schema on Supabase: 499 agricultural parcels
+              across 13 Vietnamese provinces + Kandal and Prey Veng (Cambodia),
+              4,981 spectral observations across 4 rice seasons. Key finding:
+              rice paddy flood cycle confirmed in NDWI data — December peak
+              (0.464), May (0.324), September (0.185) matching the real Mekong
+              three-crop calendar. Platform features: 5 Sentinel-2 band toggles,
+              live parcel data from Supabase REST API, temporal NDVI/NDWI line
+              chart per parcel click, land use and country filters, flood
+              detection overlay, band color legends, click-to-detail sidebar.
+            </p>
+            <div class="sprint-tags">
+              <span class="sprint-tag">Python</span>
+              <span class="sprint-tag">Google Earth Engine</span>
+              <span class="sprint-tag">Sentinel-2 SR</span>
+              <span class="sprint-tag">GDAL / gdal2tiles</span>
+              <span class="sprint-tag">AWS S3</span>
+              <span class="sprint-tag">PostgreSQL 17</span>
+              <span class="sprint-tag">PostGIS 3.6</span>
+              <span class="sprint-tag">Supabase</span>
+              <span class="sprint-tag">Leaflet.js</span>
+              <span class="sprint-tag">Chart.js</span>
+              <span class="sprint-tag">GeoPandas</span>
+              <span class="sprint-tag">COG</span>
+              <span class="sprint-tag">XYZ Tiles</span>
+              <span class="sprint-tag">NDVI · NDWI · NDRE</span>
+            </div>
+            <a
+              href="https://goheist01.github.io/uav-mission-intelligence/outputs/mekong_platform.html"
+              target="_blank"
+              style="display:inline-block;margin-top:0.75rem;padding:0.35rem 0.85rem;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:0.05em;transition:all 0.2s;"
+              onmouseover="this.style.background='var(--accent)';this.style.color='#000'"
+              onmouseout="this.style.background='transparent';this.style.color='var(--accent)'"
+              >LAUNCH PLATFORM →</a>
+          </div>
           <div class="sprint-entry">
             <div class="sprint-date">June 2026 · Sprint 09</div>
             <div class="sprint-title">
